@@ -101,7 +101,7 @@ class NextJS_GraphQL_Hooks
 	{
 		// Include the GraphQL hooks class
 		require_once NEXTJS_GRAPHQL_HOOKS_PLUGIN_DIR . "includes/GraphQL_Hooks.php";
-		
+
 		// Include the updater class
 		require_once NEXTJS_GRAPHQL_HOOKS_PLUGIN_DIR . "includes/Updater.php";
 	}
