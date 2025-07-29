@@ -16,15 +16,18 @@ NC='\033[0m' # No Color
 echo -e "${BLUE}=== NextJS GraphQL Hooks Version Checker ===${NC}"
 echo ""
 
-# Files to check for versions
-declare -A VERSION_FILES=(
-    ["Main Plugin"]="nextjs-graphql-hooks.php"
-    ["README.md"]="README.md"
-    ["Composer"]="composer.json"
-    ["CHANGELOG"]="CHANGELOG.md"
-)
+# Note: Using arrays instead of associative arrays for macOS bash 3.x compatibility
 
 # Function to extract version from main plugin file
+get_main_version() {
+    if [ -f "nextjs-graphql-hooks.php" ]; then
+        grep "Version:" "nextjs-graphql-hooks.php" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1
+    else
+        echo "FILE_NOT_FOUND"
+    fi
+}
+
+# Get versions from all files
 get_main_version() {
     if [ -f "nextjs-graphql-hooks.php" ]; then
         grep "Version:" "nextjs-graphql-hooks.php" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1
@@ -38,15 +41,6 @@ get_readme_version() {
     if [ -f "README.md" ]; then
         # Look for version in plugin header or version badge
         grep -E "(Version|version).*[0-9]+\.[0-9]+\.[0-9]+" "README.md" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1 || echo "NOT_FOUND"
-    else
-        echo "FILE_NOT_FOUND"
-    fi
-}
-
-# Function to extract version from composer.json
-get_composer_version() {
-    if [ -f "composer.json" ]; then
-        grep '"version"' "composer.json" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1 || echo "NOT_FOUND"
     else
         echo "FILE_NOT_FOUND"
     fi
@@ -91,7 +85,6 @@ echo ""
 
 main_version=$(get_main_version)
 readme_version=$(get_readme_version)
-composer_version=$(get_composer_version)
 changelog_version=$(get_changelog_version)
 
 # Display found versions
@@ -99,7 +92,6 @@ echo "📋 Version Information:"
 echo "======================"
 printf "  %-15s %s\n" "Main Plugin:" "$main_version"
 printf "  %-15s %s\n" "README.md:" "$readme_version"
-printf "  %-15s %s\n" "Composer:" "$composer_version"
 printf "  %-15s %s\n" "CHANGELOG:" "$changelog_version"
 echo ""
 
@@ -121,7 +113,7 @@ echo ""
 echo "🔍 Semantic Version Validation:"
 echo "==============================="
 
-for version in "$main_version" "$readme_version" "$composer_version" "$changelog_version"; do
+for version in "$main_version" "$readme_version" "$changelog_version"; do
     if [ "$version" != "FILE_NOT_FOUND" ] && [ "$version" != "NOT_FOUND" ]; then
         if is_valid_semver "$version"; then
             echo -e "  ${GREEN}✅ $version - Valid semver${NC}"
@@ -148,18 +140,6 @@ if [ -n "$reference_version" ]; then
         fi
     else
         echo -e "  ${YELLOW}⚠️  README.md version not found or file missing${NC}"
-    fi
-    
-    # Check Composer version
-    if [ "$composer_version" != "FILE_NOT_FOUND" ] && [ "$composer_version" != "NOT_FOUND" ]; then
-        if [ "$composer_version" = "$reference_version" ]; then
-            echo -e "  ${GREEN}✅ Composer.json version matches${NC}"
-        else
-            echo -e "  ${RED}❌ Composer.json version mismatch: $composer_version (expected: $reference_version)${NC}"
-            issues_found=$((issues_found + 1))
-        fi
-    else
-        echo -e "  ${YELLOW}⚠️  Composer.json version not found or file missing${NC}"
     fi
     
     # Check CHANGELOG version

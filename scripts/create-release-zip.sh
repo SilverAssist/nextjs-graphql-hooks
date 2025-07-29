@@ -60,10 +60,10 @@ if [ -d "languages" ]; then
     echo "  ✅ languages/ directory copied"
 fi
 
-# Copy composer.json if it exists
+# Copy composer.json if it exists (without version field for Packagist compatibility)
 if [ -f "composer.json" ]; then
     cp composer.json "$PLUGIN_DIR/"
-    echo "  ✅ composer.json copied"
+    echo "  ✅ composer.json copied (version field excluded for Packagist compatibility)"
 fi
 
 echo "  ✅ Main plugin files copied"

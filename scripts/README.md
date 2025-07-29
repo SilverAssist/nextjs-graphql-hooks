@@ -39,8 +39,8 @@ Verifies version consistency across all plugin files.
 - Checks version consistency across files:
   - `nextjs-graphql-hooks.php` (main plugin file)
   - `README.md` (version badges/references)
-  - `composer.json` (version field)
   - `CHANGELOG.md` (latest version entry)
+- **Note**: Excludes `composer.json` for Packagist compatibility (version field not recommended)
 - Validates Git tag existence
 - Provides detailed error reporting
 
