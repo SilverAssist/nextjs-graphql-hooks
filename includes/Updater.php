@@ -161,7 +161,7 @@ class Updater
       "version" => $latest_version ?: $this->current_version,
       "author" => $this->plugin_data["Author"],
       "author_profile" => "https://github.com/SilverAssist",
-      "requires" => "5.0",
+      "requires" => "6.5",
       "tested" => get_bloginfo("version"),
       "requires_php" => "8.0",
       "name" => $this->plugin_data["Name"],
@@ -294,9 +294,9 @@ class Updater
         
         <h4>Requirements</h4>
         <ul>
-            <li>WordPress 5.0 or higher</li>
+            <li>WordPress 6.5 or higher</li>
             <li>PHP 8.0 or higher</li>
-            <li>WPGraphQL plugin</li>
+            <li>WPGraphQL plugin (automatically managed as dependency)</li>
             <li>Elementor (optional, for Elementor features)</li>
         </ul>
         ";

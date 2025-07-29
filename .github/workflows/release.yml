@@ -117,9 +117,9 @@ jobs:
                   4. **Auto-update from GitHub** (if enabled)
 
                   ## Requirements
-                  - WordPress 5.0+
+                  - WordPress 6.5+
                   - PHP 8.0+
-                  - WPGraphQL plugin
+                  - WPGraphQL plugin (automatically managed as dependency)
                   - Elementor (optional)
 
                   ## Features Included

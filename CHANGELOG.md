@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Initial release of NextJS GraphQL Hooks plugin
+- **WordPress 6.5+ Plugin Dependencies**: Automatic WPGraphQL dependency management using WordPress native plugin dependencies feature
 - Default Page fields for Elementor integration:
   - `elementorContent` field with optional CSS inline parameter
   - `elementorCSSFile` field for CSS file URL
@@ -16,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Kit ID retrieval
   - CSS file URL for global styles
 - Extensible filter system using `nextjs_graphql_hooks_register_types` action hook
+- Auto-update system with GitHub releases integration
 - Modern PHP 8.0+ codebase with:
   - Namespace organization (`NextJSGraphQLHooks`)
   - Singleton pattern implementation
@@ -31,9 +33,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `register_custom_fields()` for extending existing types
   - `register_root_query_field()` for root query fields
 - WordPress integration features:
-  - WPGraphQL dependency checking
+  - **WPGraphQL automatic dependency management** (WordPress 6.5+)
   - Plugin activation/deactivation hooks
-  - Admin notices for missing dependencies
+  - Admin notices for missing dependencies (legacy WordPress support)
+  - Auto-update system with GitHub releases
+- GitHub Actions workflows for:
+  - Automated quality checks with PHP 8.0+ and WordPress 6.5+ compatibility testing
+  - Package size monitoring
+  - Automated release creation
 - Example implementation file showing how to extend the plugin
 - Comprehensive documentation with:
   - Installation instructions
@@ -45,6 +52,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Input sanitization for GraphQL arguments
 - Proper error message handling to prevent sensitive information exposure
 - WordPress capability integration ready for future enhancements
+
+### Requirements
+- **WordPress 6.5+** (for automatic plugin dependency management)
+- **PHP 8.0+** (modern syntax and features)
+- **WPGraphQL plugin** (automatically managed as dependency in WP 6.5+)
+
+### Compatibility Notes
+- For WordPress versions below 6.5, WPGraphQL must be installed manually
+- Automatic plugin dependency management requires WordPress 6.5 or later
+- All features fully supported on WordPress 6.5+ with automatic dependency resolution
 
 ### Technical Details
 - Requires WordPress 5.0+
