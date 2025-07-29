@@ -229,6 +229,14 @@ GPL v2 or later
 Silver Assist  
 Website: http://silverassist.com/
 
+## License
+
+This project is licensed under the GPL v2 or later - see the [LICENSE](LICENSE) file for details.
+
+**NextJS GraphQL Hooks** is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 2 of the License, or any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
 ## Support
 
 For support and feature requests, please contact Silver Assist or open an issue in the project repository.
