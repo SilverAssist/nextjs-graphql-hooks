@@ -31,8 +31,8 @@
   },
   "scripts": {
     "test": "phpunit",
-    "phpcs": "phpcs --standard=WordPress .",
-    "phpcbf": "phpcbf --standard=WordPress .",
+    "phpcs": "phpcs -d memory_limit=512M",
+    "phpcbf": "phpcbf -d memory_limit=512M",
     "post-install-cmd": [
       "phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs"
     ]

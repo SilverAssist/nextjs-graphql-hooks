@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="NextJS GraphQL Hooks" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd">
+    <description>Coding standards for NextJS GraphQL Hooks WordPress plugin</description>
+
+    <!-- Show progress and sniff codes in all reports -->
+    <arg value="ps"/>
+
+    <!-- Enables parallel processing when available for faster results. -->
+    <arg name="parallel" value="8"/>
+
+    <!-- Limit to PHP files only -->
+    <arg name="extensions" value="php"/>
+
+    <!-- The base WordPress-Core standard -->
+    <rule ref="WordPress-Core">
+        <!-- Allow short array syntax -->
+        <exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+    </rule>
+
+    <!-- Include WordPress-Extra rules for best practices -->
+    <rule ref="WordPress-Extra">
+        <!-- Allow short array syntax -->
+        <exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+    </rule>
+
+    <!-- Include the whole WordPress standard -->
+    <rule ref="WordPress"/>
+
+    <!-- Include directories to scan -->
+    <file>.</file>
+
+    <!-- Exclude directories and files -->
+    <exclude-pattern>vendor/*</exclude-pattern>
+    <exclude-pattern>node_modules/*</exclude-pattern>
+    <exclude-pattern>.git/*</exclude-pattern>
+    <exclude-pattern>*.js</exclude-pattern>
+    <exclude-pattern>*.css</exclude-pattern>
+    <exclude-pattern>*.md</exclude-pattern>
+
+    <!-- Check for PHP version compatibility -->
+    <config name="testVersion" value="8.0-"/>
+</ruleset>
