@@ -1,0 +1,95 @@
+name: Check Package Size
+
+on:
+    pull_request:
+        branches: [main]
+    workflow_dispatch:
+
+jobs:
+    check-size:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Calculate package size
+              id: size
+              run: |
+                  # Create temporary package
+                  mkdir -p temp-package
+
+                  # Copy files to package (excluding development files)
+                  rsync -av --exclude='.git*' \
+                            --exclude='.github/' \
+                            --exclude='temp-package/' \
+                            --exclude='tmp/' \
+                            --exclude='vendor/' \
+                            --exclude='composer.lock' \
+                            --exclude='node_modules/' \
+                            --exclude='.phpcs.xml.dist' \
+                            --exclude='copilot-instructions.md' \
+                            --exclude='*.tmp' \
+                            ./ temp-package/
+
+                  # Create ZIP file
+                  zip -r temp-package.zip temp-package/
+
+                  # Calculate package size
+                  PACKAGE_SIZE=$(ls -lh temp-package.zip | awk '{print $5}')
+                  PACKAGE_SIZE_BYTES=$(stat -c%s temp-package.zip)
+                  PACKAGE_SIZE_KB=$((PACKAGE_SIZE_BYTES / 1024))
+
+                  echo "package_size=$PACKAGE_SIZE" >> $GITHUB_OUTPUT
+                  echo "package_size_kb=${PACKAGE_SIZE_KB}KB" >> $GITHUB_OUTPUT
+
+                  echo "📦 Current package size: $PACKAGE_SIZE (~${PACKAGE_SIZE_KB}KB)"
+
+                  # Clean up
+                  rm -rf temp-package temp-package.zip
+
+            - name: Comment on PR
+              if: github.event_name == 'pull_request'
+              uses: actions/github-script@v6
+              with:
+                  script: |
+                      const { data: comments } = await github.rest.issues.listComments({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: context.issue.number,
+                      });
+
+                      const botComment = comments.find(comment => 
+                        comment.user.type === 'Bot' && comment.body.includes('📦 Package Size Check')
+                      );
+
+                      const body = `## 📦 Package Size Check
+
+                      **Current package size**: ~${{ steps.size.outputs.package_size_kb }}
+
+                      This is the estimated size of the distribution ZIP file that would be created for this version.
+
+                      _This comment is automatically updated when changes are pushed._`;
+
+                      if (botComment) {
+                        await github.rest.issues.updateComment({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          comment_id: botComment.id,
+                          body: body
+                        });
+                      } else {
+                        await github.rest.issues.createComment({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: context.issue.number,
+                          body: body
+                        });
+                      }
+
+            - name: Summary
+              run: |
+                  echo "## 📦 Package Size Analysis" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Current size**: ~${{ steps.size.outputs.package_size_kb }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Compressed**: Yes (ZIP format)" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Excludes**: Development files (.github/, tmp/, vendor/, .phpcs.xml.dist, etc.)" >> $GITHUB_STEP_SUMMARY

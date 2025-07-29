@@ -16,11 +16,18 @@ NextJS GraphQL Hooks is a WordPress plugin that provides essential GraphQL queri
 2. **GraphQL Hooks Class**: `NextJSGraphQLHooks\GraphQL_Hooks`
    - Manages GraphQL type and field registration
    - Provides helper methods for extensibility
-   - Located in: `includes/class-graphql-hooks.php`
+   - Located in: `includes/graphql-hooks.php`
+
+3. **Auto-Update System**: `NextJSGraphQLHooks\Updater`
+   - Handles automatic updates from GitHub releases
+   - Integrates with WordPress update system
+   - Located in: `includes/updater.php`
 
 ### Key Features
 
 - **Default Fields**: Automatically adds Elementor-related fields to Page queries
+- **Auto-Updates**: Automatic plugin updates from GitHub releases
+- **GitHub Workflows**: CI/CD pipeline with quality checks and automated releases
 - **Extensible**: Filter system allows custom type registration
 - **Error Handling**: Comprehensive error logging and graceful fallbacks
 - **Modern PHP**: Uses PHP 8.0+ features including typed properties and namespaces
@@ -74,10 +81,22 @@ public function get_instance(): NextJS_GraphQL_Hooks
 nextjs-graphql-hooks/
 ├── nextjs-graphql-hooks.php          # Main plugin file
 ├── includes/
-│   └── class-graphql-hooks.php       # Core GraphQL functionality
+│   ├── graphql-hooks.php             # Core GraphQL functionality
+│   └── updater.php                   # Auto-update system
+├── .github/
+│   └── workflows/
+│       ├── quality-checks.yml        # CI/CD quality checks
+│       ├── check-size.yml            # Package size monitoring
+│       └── release.yml               # Automated releases
 ├── examples/
 │   └── custom-types-example.php      # Usage examples
 ├── languages/                        # Translation files (future)
+├── docs/
+│   ├── RELEASE-PROCESS.md            # Release workflow guide
+│   ├── UPDATE-SYSTEM.md              # Auto-update documentation
+│   └── QUICK-RELEASE.md              # Emergency release procedures
+├── composer.json                     # Composer configuration
+├── .phpcs.xml.dist                   # PHP CodeSniffer configuration
 ├── README.md                         # Documentation
 └── copilot-instructions.md           # This file
 ```
@@ -90,6 +109,7 @@ nextjs-graphql-hooks/
 2. **Use Filters**: Implement `nextjs_graphql_hooks_register_types` action for extensibility
 3. **Error Handling**: Always include try-catch blocks for external API calls
 4. **Type Safety**: Use PHP 8+ typed properties and return types
+5. **Auto-Updates**: Consider update compatibility when changing core functionality
 
 ### Example: Adding a New GraphQL Type
 
@@ -257,6 +277,39 @@ $hooks_instance->register_custom_object_type("ListItem", [
 3. **Capability Checks**: Implement proper WordPress capability checks when needed
 4. **Data Validation**: Validate data before processing
 
+## Release & Update System
+
+### GitHub Workflows
+
+1. **quality-checks.yml**: Runs on push/PR
+   - Composer validation and installation
+   - PHP CodeSniffer with WordPress standards
+   - Security vulnerability scanning
+
+2. **check-size.yml**: Runs on pull requests
+   - Monitors distribution package size
+   - Comments on PRs with size changes
+   - Prevents bloated releases
+
+3. **release.yml**: Runs on version tags
+   - Updates version numbers in files
+   - Creates distribution package
+   - Publishes GitHub release with changelog
+
+### Auto-Update System
+
+- Uses GitHub API to check for new releases
+- Integrates with WordPress update notifications
+- Handles plugin updates through admin interface
+- Maintains compatibility with WordPress update hooks
+
+### Version Management
+
+- Uses semantic versioning (MAJOR.MINOR.PATCH)
+- Version synchronization across multiple files
+- Automatic changelog parsing for release notes
+- Emergency release procedures documented
+
 ## Future Enhancements
 
 ### Planned Features
@@ -265,6 +318,7 @@ $hooks_instance->register_custom_object_type("ListItem", [
 2. **Admin Interface**: Settings page for configuration
 3. **Query Caching**: Implement caching for expensive queries
 4. **Performance Monitoring**: Add query performance tracking
+5. **Update Rollback**: Ability to rollback failed updates
 
 ### Extensibility Points
 
@@ -272,6 +326,7 @@ $hooks_instance->register_custom_object_type("ListItem", [
 2. **Field Validation**: Add field validation hooks
 3. **Query Optimization**: Implement query optimization filters
 4. **Schema Customization**: Allow schema modification hooks
+5. **Update Hooks**: Custom hooks for pre/post update actions
 
 ## Best Practices
 
@@ -281,3 +336,5 @@ $hooks_instance->register_custom_object_type("ListItem", [
 4. **Use proper text domains for translations**
 5. **Document all public methods and hooks**
 6. **Test with both required and optional dependencies**
+7. **Consider update compatibility** when making changes
+8. **Use semantic versioning** for all releases
