@@ -24,15 +24,56 @@ NextJS GraphQL Hooks provides essential GraphQL queries and types that are commo
 - WPGraphQL plugin
 - Elementor (optional, for Elementor-related features)
 
+## Download
+
+The plugin is available as a ready-to-install ZIP file from GitHub releases:
+- **Latest Version**: 1.0.0
+- **Package Size**: ~13KB (compressed)
+- **Compatibility**: WordPress 5.0+ with PHP 8.0+
+- **Auto-Updates**: Included from GitHub releases
+
+📦 **[Download Latest Release](https://github.com/SilverAssist/nextjs-graphql-hooks/releases/latest)**
+
 ## Installation
 
-1. Download the plugin from the [latest release](https://github.com/your-username/nextjs-graphql-hooks/releases)
-2. Upload to `/wp-content/plugins/nextjs-graphql-hooks/`
-3. Activate the plugin through the 'Plugins' menu in WordPress
-4. Ensure WPGraphQL is installed and activated
+### Method 1: WordPress Admin Dashboard (Recommended)
+
+1. **Download the Plugin**: Download the `nextjs-graphql-hooks-v1.0.0.zip` file from the [releases page](https://github.com/SilverAssist/nextjs-graphql-hooks/releases)
+2. **Access WordPress Admin**: Log in to your WordPress admin dashboard
+3. **Navigate to Plugins**: Go to `Plugins` → `Add New`
+4. **Upload Plugin**: Click the `Upload Plugin` button at the top of the page
+5. **Choose File**: Click `Choose File` and select the downloaded ZIP file
+6. **Install**: Click `Install Now` and wait for the upload to complete
+7. **Activate**: Click `Activate Plugin` to enable the NextJS GraphQL Hooks plugin
+
+### Method 2: Manual Installation via FTP
+
+1. **Extract the ZIP**: Unzip the downloaded file on your computer
+2. **Upload via FTP**: Upload the extracted `nextjs-graphql-hooks` folder to the `/wp-content/plugins/` directory on your server
+3. **Activate**: Go to the WordPress admin panel and activate the plugin from the `Plugins` page
+
+### Method 3: WP-CLI Installation
+
+If you have WP-CLI installed, you can also install the plugin using the command line:
+
+```bash
+# Download and install the plugin
+wp plugin install https://github.com/SilverAssist/nextjs-graphql-hooks/releases/latest/download/nextjs-graphql-hooks-v1.0.0.zip --activate
+
+# Or manually activate after uploading
+wp plugin activate nextjs-graphql-hooks
+```
+
+### Verification
+
+After installation, you should see:
+- **GraphQL Fields**: `elementorContent` and `elementorCSSFile` fields available in Page queries
+- **Custom Queries**: `elementorLibraryKit` query available in GraphQL
+- **Auto-Updates**: Update notifications in WordPress admin when new releases are available
+- **Settings Page**: "GraphQL Hooks Updates" under Settings menu for manual update checks
 
 ### Auto-Updates
-The plugin includes an auto-update system that checks for new releases on GitHub. Updates can be installed directly from the WordPress admin panel.
+The plugin includes an auto-update system that checks for new releases on GitHub. Updates can be installed directly from the WordPress admin panel under **Dashboard** → **Updates**.
 
 ## Default GraphQL Queries
 

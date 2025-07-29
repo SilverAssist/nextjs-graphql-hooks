@@ -42,6 +42,7 @@ EXCLUDE_PATTERNS=(
     "vendor/"
     "composer.lock"
     "copilot-instructions.md"
+    "INSTALLATION.md"
     "node_modules/"
     "*.log"
     "*.tmp"
@@ -77,10 +78,14 @@ for file in "${INCLUDE_FILES[@]}"; do
     if [ -e "$file" ]; then
         if [ -d "$file" ]; then
             echo "  📁 Copying directory: $file"
-            cp -r "$file" "$PACKAGE_DIR/"
+            # Ensure the parent directory exists and copy preserving structure
+            mkdir -p "$PACKAGE_DIR/$(dirname "$file")"
+            cp -r "$file" "$PACKAGE_DIR/$file"
         else
             echo "  📄 Copying file: $file"
-            cp "$file" "$PACKAGE_DIR/"
+            # Ensure the parent directory exists
+            mkdir -p "$PACKAGE_DIR/$(dirname "$file")"
+            cp "$file" "$PACKAGE_DIR/$file"
         fi
     else
         echo -e "  ${YELLOW}⚠️  Warning: $file not found${NC}"
