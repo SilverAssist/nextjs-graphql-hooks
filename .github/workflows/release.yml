@@ -51,25 +51,11 @@ jobs:
                   VERSION="${{ steps.version.outputs.version }}"
                   PACKAGE_NAME="nextjs-graphql-hooks-v$VERSION"
 
-                  # Create package directory
-                  mkdir -p dist/$PACKAGE_NAME
+                  # Make the script executable
+                  chmod +x scripts/create-release-zip.sh
 
-                  # Copy files to package (excluding development files)
-                  rsync -av --exclude='.git*' \
-                            --exclude='.github/' \
-                            --exclude='dist/' \
-                            --exclude='tmp/' \
-                            --exclude='vendor/' \
-                            --exclude='composer.lock' \
-                            --exclude='node_modules/' \
-                            --exclude='.phpcs.xml.dist' \
-                            --exclude='copilot-instructions.md' \
-                            --exclude='*.tmp' \
-                            ./ dist/$PACKAGE_NAME/
-
-                  # Create ZIP file
-                  cd dist
-                  zip -r $PACKAGE_NAME.zip $PACKAGE_NAME/
+                  # Use our custom script to create properly structured ZIP
+                  ./scripts/create-release-zip.sh
 
                   # Calculate package size
                   PACKAGE_SIZE=$(ls -lh $PACKAGE_NAME.zip | awk '{print $5}')
@@ -79,7 +65,7 @@ jobs:
                   echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
                   echo "package_size=$PACKAGE_SIZE" >> $GITHUB_OUTPUT
                   echo "package_size_kb=${PACKAGE_SIZE_KB}KB" >> $GITHUB_OUTPUT
-                  echo "zip_path=dist/$PACKAGE_NAME.zip" >> $GITHUB_OUTPUT
+                  echo "zip_path=$PACKAGE_NAME.zip" >> $GITHUB_OUTPUT
 
                   echo "📦 Package created: $PACKAGE_NAME.zip"
                   echo "📏 Package size: $PACKAGE_SIZE (~${PACKAGE_SIZE_KB}KB)"

@@ -1,5 +1,6 @@
 {
   "name": "silverassist/nextjs-graphql-hooks",
+  "version": "1.0.0",
   "description": "WordPress plugin that creates default GraphQL queries for NextJS sites with extensible type registration through filters",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",

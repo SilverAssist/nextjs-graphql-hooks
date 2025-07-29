@@ -27,7 +27,7 @@ declare -A VERSION_FILES=(
 # Function to extract version from main plugin file
 get_main_version() {
     if [ -f "nextjs-graphql-hooks.php" ]; then
-        grep -E "^\s*\*\s*Version:" "nextjs-graphql-hooks.php" | head -1 | sed -E 's/.*Version:\s*([0-9]+\.[0-9]+\.[0-9]+).*/\1/'
+        grep "Version:" "nextjs-graphql-hooks.php" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1
     else
         echo "FILE_NOT_FOUND"
     fi
@@ -37,7 +37,7 @@ get_main_version() {
 get_readme_version() {
     if [ -f "README.md" ]; then
         # Look for version in plugin header or version badge
-        grep -E "(Version|version).*[0-9]+\.[0-9]+\.[0-9]+" "README.md" | head -1 | sed -E 's/.*([0-9]+\.[0-9]+\.[0-9]+).*/\1/' || echo "NOT_FOUND"
+        grep -E "(Version|version).*[0-9]+\.[0-9]+\.[0-9]+" "README.md" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1 || echo "NOT_FOUND"
     else
         echo "FILE_NOT_FOUND"
     fi
@@ -46,7 +46,7 @@ get_readme_version() {
 # Function to extract version from composer.json
 get_composer_version() {
     if [ -f "composer.json" ]; then
-        grep -E '^\s*"version"' "composer.json" | sed -E 's/.*"version":\s*"([0-9]+\.[0-9]+\.[0-9]+)".*/\1/' || echo "NOT_FOUND"
+        grep '"version"' "composer.json" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1 || echo "NOT_FOUND"
     else
         echo "FILE_NOT_FOUND"
     fi

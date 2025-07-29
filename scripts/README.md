@@ -124,6 +124,38 @@ These scripts are designed to work with the GitHub Actions workflows:
 ### `calculate-size.sh` → `check-size.yml`
 The size calculation script outputs GitHub Actions environment variables for use in the size check workflow.
 
+# Scripts Documentation
+
+This directory contains utility scripts for managing the NextJS GraphQL Hooks plugin development and release process.
+
+## Available Scripts
+
+### `create-release-zip.sh`
+**Purpose**: Creates a properly structured ZIP file for WordPress plugin distribution.
+
+**Features**:
+- ✅ **Correct Folder Structure**: ZIP filename includes version but internal folder is always `nextjs-graphql-hooks`
+- ✅ **WordPress Compatible**: Follows WordPress plugin directory naming conventions
+- ✅ **Clean Package**: Excludes development files (.git, node_modules, etc.)
+- ✅ **Version Detection**: Automatically extracts version from main plugin file
+- ✅ **Size Reporting**: Shows final ZIP size and structure
+
+**Usage**:
+```bash
+./scripts/create-release-zip.sh
+```
+
+**Output**:
+- Creates `nextjs-graphql-hooks-v{VERSION}.zip` in project root
+- Internal structure: `nextjs-graphql-hooks/` (without version in folder name)
+- When extracted in WordPress, creates correct plugin folder name
+
+**Example**:
+```bash
+# Creates: nextjs-graphql-hooks-v1.0.0.zip
+# Contains: nextjs-graphql-hooks/ (folder structure WordPress expects)
+```
+
 ### `check-versions.sh` → `quality-checks.yml`
 Version validation can be integrated into quality checks workflow.
 
