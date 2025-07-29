@@ -24,6 +24,11 @@
       "NextJSGraphQLHooks\\": "includes/"
     }
   },
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true
+    }
+  },
   "scripts": {
     "test": "phpunit",
     "phpcs": "phpcs --standard=WordPress .",
