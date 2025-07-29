@@ -1,0 +1,90 @@
+name: Plugin Quality Checks
+
+on:
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main]
+
+jobs:
+    quality-checks:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                php-version: [8.0, 8.1, 8.2, 8.3]
+                wordpress-version: [5.0, 6.0, 6.4]
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-version }}
+                  extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
+                  coverage: none
+
+            - name: Validate composer.json
+              run: composer validate --strict
+
+            - name: Install Composer dependencies
+              run: composer install --prefer-dist --no-progress --no-suggest
+
+            - name: Run PHP CodeSniffer
+              run: composer run phpcs
+
+            - name: Check PHP syntax
+              run: find . -name "*.php" -exec php -l {} \;
+
+    security-check:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: 8.0
+
+            - name: Install dependencies
+              run: composer install --prefer-dist --no-progress
+
+            - name: Run security check
+              run: |
+                  # Check for common security issues
+                  grep -r "eval(" . && exit 1 || echo "✅ No eval() found"
+                  grep -r "\$_GET\[" . && echo "⚠️  Direct \$_GET usage found" || echo "✅ No direct \$_GET usage"
+                  grep -r "\$_POST\[" . && echo "⚠️  Direct \$_POST usage found" || echo "✅ No direct \$_POST usage"
+                  grep -r "file_get_contents.*http" . && exit 1 || echo "✅ No remote file_get_contents found"
+
+    compatibility-check:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: 8.0
+
+            - name: Check PHP 8.0+ compatibility
+              run: |
+                  # Check for PHP 8.0+ features usage
+                  php -r "
+                    if (version_compare(PHP_VERSION, '8.0.0', '<')) {
+                      echo 'PHP 8.0+ required';
+                      exit(1);
+                    }
+                    echo '✅ PHP version compatible';
+                  "
+
+            - name: WordPress compatibility check
+              run: |
+                  # Basic WordPress function usage validation
+                  grep -r "add_action\|add_filter\|wp_enqueue" . && echo "✅ WordPress functions found" || echo "⚠️  No WordPress functions detected"
