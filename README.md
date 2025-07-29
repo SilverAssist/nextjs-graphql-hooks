@@ -103,7 +103,7 @@ Register a field in the root query.
 nextjs-graphql-hooks/
 ├── nextjs-graphql-hooks.php          # Main plugin file
 ├── includes/
-│   └── graphql-hooks.php             # GraphQL hooks class
+│   └── GraphQL_Hooks.php             # GraphQL hooks class
 ├── languages/                        # Translation files
 └── README.md                         # This file
 ```

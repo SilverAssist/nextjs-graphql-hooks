@@ -89,7 +89,7 @@ class NextJS_GraphQL_Hooks
 	public function load_dependencies(): void
 	{
 		// Include the GraphQL hooks class
-		require_once NEXTJS_GRAPHQL_HOOKS_PLUGIN_DIR . "includes/graphql-hooks.php";
+		require_once NEXTJS_GRAPHQL_HOOKS_PLUGIN_DIR . "includes/GraphQL_Hooks.php";
 	}
 
 	/**
