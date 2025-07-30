@@ -8,7 +8,7 @@
  * @package NextJSGraphQLHooks
  * @since 1.0.0
  * @author Silver Assist
- * @version 1.0.0
+ * @version 1.0.1
  * @license GPL v2 or later
  */
 

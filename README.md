@@ -105,7 +105,7 @@ NextJS GraphQL Hooks provides essential GraphQL queries and types that are commo
 ## Download
 
 The plugin is available as a ready-to-install ZIP file from GitHub releases:
-- **Latest Version**: 1.0.0
+- **Latest Version**: 1.0.1
 - **Package Size**: ~13KB (compressed)
 - **Compatibility**: WordPress 6.5+ with PHP 8.0+
 - **Auto-Updates**: Included from GitHub releases
@@ -117,7 +117,7 @@ The plugin is available as a ready-to-install ZIP file from GitHub releases:
 
 ### Method 1: WordPress Admin Dashboard (Recommended)
 
-1. **Download the Plugin**: Download the `nextjs-graphql-hooks-v1.0.0.zip` file from the [releases page](https://github.com/SilverAssist/nextjs-graphql-hooks/releases)
+1. **Download the Plugin**: Download the `nextjs-graphql-hooks-v1.0.1.zip` file from the [releases page](https://github.com/SilverAssist/nextjs-graphql-hooks/releases)
 2. **Access WordPress Admin**: Log in to your WordPress admin dashboard
 3. **Navigate to Plugins**: Go to `Plugins` → `Add New`
 4. **Upload Plugin**: Click the `Upload Plugin` button at the top of the page
@@ -138,7 +138,7 @@ If you have WP-CLI installed, you can also install the plugin using the command 
 
 ```bash
 # Download and install the plugin
-wp plugin install https://github.com/SilverAssist/nextjs-graphql-hooks/releases/latest/download/nextjs-graphql-hooks-v1.0.0.zip --activate
+wp plugin install https://github.com/SilverAssist/nextjs-graphql-hooks/releases/latest/download/nextjs-graphql-hooks-v1.0.1.zip --activate
 
 # Or manually activate after uploading
 wp plugin activate nextjs-graphql-hooks

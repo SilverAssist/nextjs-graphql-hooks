@@ -5,6 +5,18 @@ All notable changes to the NextJS GraphQL Hooks Plugin will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-07-30
+
+### Updated
+- Updated Copilot instructions to reflect current plugin architecture and scripts structure
+- Improved version management scripts documentation
+- Enhanced filter system documentation with comprehensive examples
+- Updated file structure documentation in Copilot instructions
+
+### Fixed
+- Corrected script references in documentation to match actual file structure
+- Updated version management workflow with proper script recommendations
+
 ## [1.0.0] - 2025-07-29
 
 ### Added
