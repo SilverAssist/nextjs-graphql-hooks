@@ -12,7 +12,7 @@
  * Requires at least: 6.5
  * Tested up to: 6.4
  * Network: false
- * Requires Plugins: wp-graphql
+ * Requires Plugins: wp-graphql, elementor
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  *
@@ -30,6 +30,9 @@
  * along with NextJS GraphQL Hooks. If not, see https://www.gnu.org/licenses/gpl-2.0.html.
  *
  * @package NextJSGraphQLHooks
+ * @since 1.0.0
+ * @version 1.0.0
+ * @author Silver Assist
  */
 
 namespace NextJSGraphQLHooks;
