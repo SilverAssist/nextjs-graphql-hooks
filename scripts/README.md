@@ -1,220 +1,298 @@
-# Scripts Directory
+# Release Automation Documentation
 
-Collection of bash scripts for NextJS GraphQL Hooks plugin development and release management.
+## 🚀 Automated Release System
 
-## Available Scripts
+This system completely automates the release creation process for the NextJS GraphQL Hooks Plugin, including automatic package size calculation.
 
-### 📊 `calculate-size.sh`
-Calculates the distribution package size for the plugin.
+## 📁 System Files
 
-**Usage:**
+### GitHub Actions Workflows
+- **`.github/workflows/release.yml`** - Main release workflow
+- **`.github/workflows/check-size.yml`** - Package size verification for PRs
+
+### Local Scripts
+- **`scripts/calculate-size.sh`** - Local package size calculation
+- **`scripts/update-version.sh`** - Original automated version updating (macOS sed issues)
+- **`scripts/update-version-simple.sh`** - Improved version updater using Perl (recommended)
+- **`scripts/check-versions.sh`** - Version consistency verification
+
+## 🔄 Automated Workflow
+
+### 1. Local Development
+
+```bash
+# Check current package size
+./scripts/calculate-size.sh
+
+# The script automatically updates RELEASE-NOTES.md with current size
+```
+
+### 2. Pull Requests
+
+When you create a PR, GitHub Actions automatically:
+- ✅ Calculates package size
+- ✅ Comments on PR with current size
+- ✅ Updates comment if you make more changes
+
+### 3. Create Release
+
+#### Option A: Using Git Tags (Recommended)
+```bash
+# 1. Update CHANGELOG.md with new version changes
+# 2. Commit and push changes
+git add .
+git commit -m "Prepare release v1.0.1"
+git push origin main
+
+# 3. Create and push tag
+git tag v1.0.1
+git push origin v1.0.1
+
+# 4. GitHub Actions automatically:
+#    - Updates versions in all files
+#    - Calculates package size
+#    - Creates distribution ZIP
+#    - Updates RELEASE-NOTES.md
+#    - Creates GitHub Release
+#    - Attaches package ZIP
+```
+
+#### Option B: Manual Release from GitHub
+1. Go to GitHub → Actions → "Create Release Package"
+2. Click "Run workflow"
+3. Enter version (e.g., 1.0.1)
+4. Click "Run workflow"
+
+## 📦 What the Automation Does
+
+### Automatic Version Updates
+The system automatically updates the version in:
+- `nextjs-graphql-hooks.php` (plugin header)
+- All PHP files (`@version`)
+
+### Size Calculation
+- ✅ Excludes development files (`.github/`, `scripts/`, etc.)
+- ✅ Creates optimized ZIP for distribution
+- ✅ Calculates size in KB with precision
+- ✅ Automatically updates `RELEASE-NOTES.md`
+
+### Package Creation
+- ✅ Includes only necessary files for distribution
+- ✅ Names ZIP with version: `nextjs-graphql-hooks-v1.0.1.zip`
+- ✅ Automatically attaches to GitHub Release
+
+### Release Notes Generation
+- ✅ Extracts changes from `CHANGELOG.md` for specific version
+- ✅ Includes package information (size, installation)
+- ✅ Adds installation instructions
+
+## 🛠️ Archivos Incluidos/Excluidos
+
+### ✅ Included in Distribution Package
+```
+nextjs-graphql-hooks.php
+includes/
+README.md
+CHANGELOG.md
+LICENSE
+composer.json
+.phpcs.xml.dist
+```
+
+### ❌ Excluded from Package
+```
+.git/
+.github/
+scripts/
+node_modules/
+*.tmp, *.log
+.gitignore
+```
+
+## 📊 Useful Local Commands
+
+### Check Current Size
 ```bash
 ./scripts/calculate-size.sh
 ```
 
-**Features:**
-- Creates distribution package in `./tmp/` directory
-- Shows individual file sizes and total package size
-- Calculates compression ratio
-- Provides size warnings (>2MB warning, >5MB error)
-- Compatible with GitHub Actions (outputs environment variables)
-
-**Output:**
-- Package ZIP file in `./tmp/nextjs-graphql-hooks.zip`
-- Size information in human-readable format
-- GitHub Actions compatible environment variables
-
----
-
-### 🔍 `check-versions.sh`
-Verifies version consistency across all plugin files.
-
-**Usage:**
+### Create Local Package for Testing
 ```bash
+# Create temporary ZIP for testing
+zip -r nextjs-graphql-hooks-test.zip . -x "*.git*" ".github/*" "scripts/*" "node_modules/*"
+
+# Check size
+ls -lh nextjs-graphql-hooks-test.zip
+
+# Clean up
+rm nextjs-graphql-hooks-test.zip
+```
+
+### Verify Syntax Before Release
+```bash
+# PHP
+php -l nextjs-graphql-hooks.php
+find includes/ -name "*.php" -exec php -l {} \;
+
+# Composer validation
+composer validate
+```
+
+## 🎯 Automation Benefits
+
+### For the Developer
+- 🚀 **1-click release** - Just create tag and everything is automated
+- 📊 **Always updated size** - No more manual estimates
+- 🔄 **Consistent versions** - Updates all files automatically
+- 📋 **Automatic release notes** - Generated from CHANGELOG
+
+### For Users
+- 📦 **Optimized package** - Only necessary files
+- 📏 **Accurate information** - Real download size
+- 🔗 **Direct download** - ZIP attached to GitHub Release
+- 📖 **Clear instructions** - Release notes with installation steps
+
+### For Distribution
+- 🏪 **Marketplace ready** - Standard package
+- 📋 **Complete information** - Technical specifications
+- 🔄 **Repeatable process** - Same flow for all versions
+
+## 🔧 Emergency Configuration
+
+If you need to create a release manually without automation:
+
+```bash
+# 1. Update versions manually in files
+# 2. Create package
+mkdir -p dist/nextjs-graphql-hooks-v1.0.1
+rsync -av --exclude='.git*' --exclude='.github/' --exclude='scripts/' --exclude='node_modules/' ./ dist/nextjs-graphql-hooks-v1.0.1/
+cd dist
+zip -r nextjs-graphql-hooks-v1.0.1.zip nextjs-graphql-hooks-v1.0.1/
+
+# 3. Upload manually to GitHub Releases
+```
+
+## 📋 Version Management Scripts
+
+### Check Current Versions
+
+```bash
+# Display version consistency report across all files
 ./scripts/check-versions.sh
 ```
 
-**Features:**
-- Validates semantic versioning format
-- Checks version consistency across files:
-  - `nextjs-graphql-hooks.php` (main plugin file)
-  - `README.md` (version badges/references)
-  - `CHANGELOG.md` (latest version entry)
-- **Note**: Excludes `composer.json` for Packagist compatibility (version field not recommended)
-- Validates Git tag existence
-- Provides detailed error reporting
+**Output includes:**
+- ✅ Main plugin file versions (header, constant, docblock)
+- ✅ All PHP files (@version tags)
+- ✅ All CSS files (@version tags) (if present)
+- ✅ All JavaScript files (@version tags) (if present)
+- ✅ Consistency warnings and errors
 
-**Exit Codes:**
-- `0`: All checks passed
-- `1`: Version issues found
+### Update All Versions
 
----
+**⚠️ Important: Use the improved script for better reliability**
 
-### 🚀 `update-version.sh` (Complete)
-Comprehensive version update script with validation and backup.
-
-**Usage:**
 ```bash
-./scripts/update-version.sh <new_version> [options]
+# Recommended: Use the improved Perl-based updater (more reliable on macOS)
+./scripts/update-version-simple.sh 1.0.2
+
+# Alternative: Original sed-based updater (may have issues on macOS)
+./scripts/update-version.sh 1.0.2
 ```
 
-**Options:**
-- `--force`: Force update even if version validation fails
-- `--dry-run`: Show what would be changed without making changes
+**Note:** The original `update-version.sh` script may have compatibility issues with macOS `sed` command. The `update-version-simple.sh` script uses Perl for more reliable text replacement across different systems.
 
-**Examples:**
+**What gets updated:**
+- Plugin header version in `nextjs-graphql-hooks.php`
+- Plugin constant `NEXTJS_GRAPHQL_HOOKS_VERSION`
+- All `@version` tags in PHP, CSS, and JavaScript files
+- The update scripts themselves
+
+### Version Management Workflow
+
 ```bash
-./scripts/update-version.sh 1.2.3
-./scripts/update-version.sh 1.2.3 --dry-run
-./scripts/update-version.sh 1.2.3 --force
+# 1. Check current version consistency
+./scripts/check-versions.sh
+
+# 2. Update to new version (recommended method)
+./scripts/update-version-simple.sh 1.0.2
+
+# 3. Verify all versions were updated
+./scripts/check-versions.sh
+
+# 4. Continue with release process
+git add .
+git commit -m "🔧 Update version to 1.0.2"
 ```
 
-**Features:**
-- Semantic version validation
-- Version comparison (prevents downgrades)
-- Automatic backup creation
-- Updates all relevant files:
-  - Main plugin file (header and constant)
-  - README.md (version badges)
-  - composer.json (version field)
-  - CHANGELOG.md (adds new entry)
-- Interactive confirmation
-- Comprehensive error handling
+**The script updates:**
+- 📄 Main plugin file (header, constant, @version)
+- 📄 All PHP files (@version tags)
+- 📄 All CSS files (@version tags) (if present)
+- 📄 All JavaScript files (@version tags) (if present)
 
----
+**Important Notes:**
+- ⚠️ Script only updates `@version` tags, not `@since` tags
+- ⚠️ New files need `@since` tag set manually
+- ✅ Validates semantic version format
+- ✅ Shows confirmation before making changes
+- ✅ Provides next steps after completion
 
-### ⚡ `update-version-simple.sh` (Simple)
-Quick version update without validation or backup.
+### Complete Release Workflow
 
-**Usage:**
 ```bash
-./scripts/update-version-simple.sh <new_version>
+# 1. Check current version consistency
+./scripts/check-versions.sh
+
+# 2. Update to new version
+./scripts/update-version-simple.sh 1.0.2
+
+# 3. Review changes
+git diff
+
+# 4. Update CHANGELOG.md manually (add new version section)
+
+# 5. Commit version update
+git add .
+git commit -m "🔧 Update version to 1.0.2"
+
+# 6. Create tag and trigger automated release
+git tag v1.0.2
+git push origin main
+git push origin v1.0.2
 ```
 
-**Examples:**
+## 🚨 Troubleshooting
+
+### Version Update Script Issues
+
+**Problem:** `update-version.sh` doesn't update all files properly on macOS
+- **Cause:** macOS `sed` command has different behavior than GNU `sed`
+- **Solution:** Use `./scripts/update-version-simple.sh` instead
+- **Details:** The simple version uses Perl which is more consistent across systems
+
+**Symptoms:**
+- Only main plugin file gets updated
+- PHP files remain at old version
+- `check-versions.sh` shows version mismatches
+
+**Fix:**
 ```bash
-./scripts/update-version-simple.sh 1.2.3
-./scripts/update-version-simple.sh 2.0.0
+# Use the improved script
+./scripts/update-version-simple.sh <version>
+
+# Or manual fix for specific files
+find includes/ -name "*.php" | xargs sed -i '' 's/@version [0-9]\+\.[0-9]\+\.[0-9]\+/@version 1.0.2/g'
 ```
 
-**Features:**
-- Fast execution
-- No validation or backup
-- Updates same files as complete version
-- Ideal for automated workflows
+### If GitHub Actions Fails
+1. Verify tag has format `v1.0.1`
+2. Check GitHub Actions permissions
+3. Review logs in GitHub → Actions
 
----
+### If Size is Incorrect
+1. Run `./scripts/calculate-size.sh` locally
+2. Check excluded files in `.github/workflows/release.yml`
+3. Verify there are no unwanted large files
 
-## Script Dependencies
-
-### Required Tools
-- `bash` (version 4.0+)
-- `grep`, `sed`, `find` (standard Unix tools)
-- `git` (for version checking and tagging)
-- `zip` (for package creation)
-- `bc` (for calculations in size script)
-
-### macOS Compatibility
-All scripts are compatible with macOS and use portable commands where possible. The `stat` command uses both BSD and GNU syntax for cross-platform compatibility.
-
-## Integration with GitHub Actions
-
-These scripts are designed to work with the GitHub Actions workflows:
-
-### `calculate-size.sh` → `check-size.yml`
-The size calculation script outputs GitHub Actions environment variables for use in the size check workflow.
-
-# Scripts Documentation
-
-This directory contains utility scripts for managing the NextJS GraphQL Hooks plugin development and release process.
-
-## Available Scripts
-
-### `create-release-zip.sh`
-**Purpose**: Creates a properly structured ZIP file for WordPress plugin distribution.
-
-**Features**:
-- ✅ **Correct Folder Structure**: ZIP filename includes version but internal folder is always `nextjs-graphql-hooks`
-- ✅ **WordPress Compatible**: Follows WordPress plugin directory naming conventions
-- ✅ **Clean Package**: Excludes development files (.git, node_modules, etc.)
-- ✅ **Version Detection**: Automatically extracts version from main plugin file
-- ✅ **Size Reporting**: Shows final ZIP size and structure
-
-**Usage**:
-```bash
-./scripts/create-release-zip.sh
-```
-
-**Output**:
-- Creates `nextjs-graphql-hooks-v{VERSION}.zip` in project root
-- Internal structure: `nextjs-graphql-hooks/` (without version in folder name)
-- When extracted in WordPress, creates correct plugin folder name
-
-**Example**:
-```bash
-# Creates: nextjs-graphql-hooks-v1.0.0.zip
-# Contains: nextjs-graphql-hooks/ (folder structure WordPress expects)
-```
-
-### `check-versions.sh` → `quality-checks.yml`
-Version validation can be integrated into quality checks workflow.
-
-### `update-version.sh` → `release.yml`
-The release workflow uses similar logic for version updates during automated releases.
-
-## Best Practices
-
-### Version Management
-1. Always use semantic versioning (MAJOR.MINOR.PATCH)
-2. Update CHANGELOG.md with meaningful release notes
-3. Test version updates with `--dry-run` first
-4. Verify changes with `./scripts/check-versions.sh`
-
-### Release Process
-1. Update version: `./scripts/update-version.sh X.Y.Z`
-2. Edit CHANGELOG.md with proper release notes
-3. Verify: `./scripts/check-versions.sh`
-4. Check size: `./scripts/calculate-size.sh`
-5. Commit and tag: 
-   ```bash
-   git add .
-   git commit -m "Bump version to X.Y.Z"
-   git tag vX.Y.Z
-   git push && git push --tags
-   ```
-
-### Troubleshooting
-
-**Permission Issues:**
-```bash
-chmod +x scripts/*.sh
-```
-
-**Missing Dependencies:**
-- Install `bc`: `brew install bc` (macOS)
-- Install `git`: Included with Xcode Command Line Tools
-
-**Version Script Fails:**
-- Check file encoding (should be UTF-8)
-- Verify file paths are correct
-- Use `--force` flag to bypass validation
-
-## File Structure
-
-```
-scripts/
-├── README.md                    # This file
-├── calculate-size.sh            # Package size calculator
-├── check-versions.sh           # Version consistency checker
-├── update-version.sh           # Complete version updater
-└── update-version-simple.sh    # Simple version updater
-```
-
-## Contributing
-
-When modifying scripts:
-1. Test on both macOS and Linux if possible
-2. Use portable bash syntax (avoid bashisms)
-3. Include error handling with proper exit codes
-4. Update this README with any new features
-5. Test integration with GitHub Actions workflows
+With this system you'll never have to manually calculate package size again! 🎉

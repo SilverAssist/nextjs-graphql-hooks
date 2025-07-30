@@ -1,10 +1,20 @@
 #!/bin/bash
 
-# Update Version Script (Simple)
-# Quick version update without validation or backup
-# Usage: ./update-version-simple.sh <new_version>
+###############################################################################
+# NextJS GraphQL Hooks Plugin - Simple Version Update Script
+#
+# A more robust version updater that handles macOS sed quirks better
+#
+# Usage: ./scripts/update-version-simple.sh <new-version>
+# Example: ./scripts/update-version-simple.sh 1.0.3
+#
+# @package NextJSGraphQLHooks
+# @since 1.0.0
+# @author Silver Assist
+# @version 1.0.0
+###############################################################################
 
-set -e
+set -e  # Exit on any error
 
 # Colors for output
 RED='\033[0;31m'
@@ -13,108 +23,129 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Get new version from argument
-NEW_VERSION="$1"
-
-# Function to show usage
-show_usage() {
-    echo "Usage: $0 <new_version>"
-    echo ""
-    echo "Examples:"
-    echo "  $0 1.2.3"
-    echo "  $0 2.0.0"
-    echo ""
-    echo "Note: This is a simple script without validation or backup."
-    echo "For advanced features, use ./update-version.sh instead."
+# Function to print colored output
+print_status() {
+    echo -e "${BLUE}[INFO]${NC} $1"
 }
 
-# Validate arguments
-if [ -z "$NEW_VERSION" ]; then
-    echo -e "${RED}Error: Version argument required${NC}"
-    echo ""
-    show_usage
+print_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Validate input
+if [ $# -eq 0 ]; then
+    print_error "No version specified"
+    echo "Usage: $0 <new-version>"
+    echo "Example: $0 1.0.3"
     exit 1
 fi
 
-echo -e "${BLUE}=== Simple Version Update ===${NC}"
-echo "Updating to version: $NEW_VERSION"
-echo ""
+NEW_VERSION="$1"
 
-# Update main plugin file
-echo -e "${YELLOW}Updating nextjs-graphql-hooks.php...${NC}"
-if [ -f "nextjs-graphql-hooks.php" ]; then
-    # Update version in header
-    sed -i.bak "s/^\(\s*\*\s*Version:\s*\)[0-9]\+\.[0-9]\+\.[0-9]\+/\1$NEW_VERSION/" "nextjs-graphql-hooks.php"
-    
-    # Update version constant
-    sed -i.bak "s/define( 'NEXTJS_GRAPHQL_HOOKS_VERSION', '[0-9]\+\.[0-9]\+\.[0-9]\+' );/define( 'NEXTJS_GRAPHQL_HOOKS_VERSION', '$NEW_VERSION' );/" "nextjs-graphql-hooks.php"
-    
-    # Remove backup file
-    rm -f "nextjs-graphql-hooks.php.bak"
-    
-    echo -e "  ${GREEN}✅ Updated main plugin file${NC}"
-else
-    echo -e "  ${RED}❌ Main plugin file not found${NC}"
+# Validate version format
+if ! [[ $NEW_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    print_error "Invalid version format. Use semantic versioning (e.g., 1.0.3)"
     exit 1
 fi
 
-# Update composer.json
-echo -e "${YELLOW}Updating composer.json...${NC}"
-if [ -f "composer.json" ]; then
-    sed -i.bak "s/\"version\":\s*\"[0-9]\+\.[0-9]\+\.[0-9]\+\"/\"version\": \"$NEW_VERSION\"/" "composer.json"
-    rm -f "composer.json.bak"
-    echo -e "  ${GREEN}✅ Updated composer.json${NC}"
-else
-    echo -e "  ${YELLOW}⚠️  composer.json not found, skipping${NC}"
+# Get project root
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+print_status "Updating NextJS GraphQL Hooks Plugin to version ${NEW_VERSION}"
+print_status "Project root: ${PROJECT_ROOT}"
+
+# Get current version
+CURRENT_VERSION=$(grep -o "Version: [0-9]\+\.[0-9]\+\.[0-9]\+" "${PROJECT_ROOT}/nextjs-graphql-hooks.php" | cut -d' ' -f2)
+
+if [ -z "$CURRENT_VERSION" ]; then
+    print_error "Could not detect current version"
+    exit 1
 fi
 
-# Update README.md version badges/references
-echo -e "${YELLOW}Updating README.md...${NC}"
-if [ -f "README.md" ]; then
-    sed -i.bak "s/version-[0-9]\+\.[0-9]\+\.[0-9]\+/version-$NEW_VERSION/g" "README.md"
-    sed -i.bak "s/v[0-9]\+\.[0-9]\+\.[0-9]\+/v$NEW_VERSION/g" "README.md"
-    rm -f "README.md.bak"
-    echo -e "  ${GREEN}✅ Updated README.md${NC}"
-else
-    echo -e "  ${YELLOW}⚠️  README.md not found, skipping${NC}"
+print_status "Current version: ${CURRENT_VERSION}"
+print_status "New version: ${NEW_VERSION}"
+
+# Confirm with user
+echo ""
+read -p "$(echo -e ${YELLOW}[CONFIRM]${NC} Update version from ${CURRENT_VERSION} to ${NEW_VERSION}? [y/N]: )" -n 1 -r
+echo ""
+
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    print_warning "Version update cancelled"
+    exit 0
 fi
 
-# Add entry to CHANGELOG.md
-echo -e "${YELLOW}Updating CHANGELOG.md...${NC}"
-if [ -f "CHANGELOG.md" ]; then
-    # Create temporary file
-    temp_file=$(mktemp)
-    date_today=$(date +%Y-%m-%d)
+echo ""
+print_status "Starting version update process..."
+
+# Function to update file using perl (more reliable than sed on macOS)
+update_file() {
+    local file="$1"
+    local pattern="$2"
+    local replacement="$3"
     
-    # Add new version entry
-    {
-        head -n 1 "CHANGELOG.md"  # Keep the main title
-        echo ""
-        echo "## [$NEW_VERSION] - $date_today"
-        echo ""
-        echo "### Added"
-        echo "- Version $NEW_VERSION release"
-        echo ""
-        tail -n +2 "CHANGELOG.md"  # Rest of the file
-    } > "$temp_file"
-    
-    mv "$temp_file" "CHANGELOG.md"
-    echo -e "  ${GREEN}✅ Updated CHANGELOG.md${NC}"
-else
-    echo -e "  ${YELLOW}⚠️  CHANGELOG.md not found, skipping${NC}"
-fi
+    if [ -f "$file" ]; then
+        perl -i -pe "$pattern" "$file"
+        return $?
+    else
+        return 1
+    fi
+}
+
+# 1. Update main plugin file
+print_status "Updating main plugin file..."
+
+# Update plugin header
+update_file "${PROJECT_ROOT}/nextjs-graphql-hooks.php" "s/Version: [0-9]+\.[0-9]+\.[0-9]+/Version: ${NEW_VERSION}/g"
+
+# Update constant
+update_file "${PROJECT_ROOT}/nextjs-graphql-hooks.php" "s/define\\(\"NEXTJS_GRAPHQL_HOOKS_VERSION\", \"[0-9]+\.[0-9]+\.[0-9]+\"\\)/define(\"NEXTJS_GRAPHQL_HOOKS_VERSION\", \"${NEW_VERSION}\")/g"
+
+# Update @version tag
+update_file "${PROJECT_ROOT}/nextjs-graphql-hooks.php" "s/\@version [0-9]+\.[0-9]+\.[0-9]+/\@version ${NEW_VERSION}/g"
+
+print_success "Main plugin file updated"
+
+# 2. Update PHP files
+print_status "Updating PHP files..."
+
+find "${PROJECT_ROOT}/includes" -name "*.php" -print0 | while IFS= read -r -d '' file; do
+    if grep -q "@version" "$file"; then
+        update_file "$file" "s/\@version [0-9]+\.[0-9]+\.[0-9]+/\@version ${NEW_VERSION}/g"
+        print_status "  Updated $(basename "$file")"
+    fi
+done
+
+print_success "PHP files updated"
+
+# 3. Update this script
+print_status "Updating version scripts..."
+update_file "${PROJECT_ROOT}/scripts/update-version.sh" "s/\@version [0-9]+\.[0-9]+\.[0-9]+/\@version ${NEW_VERSION}/g"
+update_file "${PROJECT_ROOT}/scripts/update-version-simple.sh" "s/\@version [0-9]+\.[0-9]+\.[0-9]+/\@version ${NEW_VERSION}/g"
+
+print_success "Version scripts updated"
 
 echo ""
-echo -e "${GREEN}✅ Version update completed!${NC}"
+print_success "✨ Version update completed successfully!"
 echo ""
-echo "📋 Files updated:"
-echo "  • nextjs-graphql-hooks.php"
-echo "  • composer.json"
-echo "  • README.md"
-echo "  • CHANGELOG.md"
+print_status "Summary of changes:"
+echo "  • Main plugin file: nextjs-graphql-hooks.php"
+echo "  • PHP files: includes/**/*.php"
+echo "  • Update scripts: scripts/update-version*.sh"
 echo ""
-echo -e "${YELLOW}Next steps:${NC}"
-echo "  1. Review changes: git diff"
-echo "  2. Commit: git add . && git commit -m \"Bump version to $NEW_VERSION\""
-echo "  3. Tag: git tag v$NEW_VERSION"
-echo "  4. Push: git push && git push --tags"
+print_status "Next steps:"
+echo "  1. Verify changes: ./scripts/check-versions.sh"
+echo "  2. Review the changes: git diff"
+echo "  3. Commit changes: git add . && git commit -m '🔧 Update version to ${NEW_VERSION}'"
+echo "  4. Create tag: git tag v${NEW_VERSION}"
+echo "  5. Push changes: git push origin main && git push origin v${NEW_VERSION}"
+echo ""
+print_warning "Remember: This script only updates @version tags, not @since tags!"

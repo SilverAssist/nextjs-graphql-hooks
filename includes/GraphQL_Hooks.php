@@ -13,7 +13,6 @@ namespace NextJSGraphQLHooks;
 
 use Elementor\Core\Files\CSS\Post as Post_CSS;
 use Elementor\Plugin as Elementor;
-use WP_Error;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Registry\TypeRegistry;
 
@@ -68,8 +67,8 @@ class GraphQL_Hooks
         // Register Elementor Library Kit field
         $this->register_elementor_library_kit_field($type_registry);
 
-        // Allow other plugins/themes to register additional types
-        \do_action("nextjs_graphql_hooks_register_types", $type_registry, $this);
+        // Allow other plugins/themes to register additional types through filters
+        $this->register_extension_types($type_registry);
     }
 
     /**
@@ -139,6 +138,33 @@ class GraphQL_Hooks
                 return $this->get_elementor_library_kit();
             }
         ]);
+    }
+
+    /**
+     * Register extension types through filter system
+     *
+     * @param TypeRegistry $type_registry The WPGraphQL type registry instance.
+     * @return void
+     */
+    private function register_extension_types(TypeRegistry $type_registry): void
+    {
+        // Allow themes/plugins to register custom object types
+        $custom_types = \apply_filters('nextjs_graphql_hooks_register_types', []);
+        foreach ($custom_types as $type_name => $type_config) {
+            $this->register_custom_object_type($type_name, $type_config);
+        }
+
+        // Allow themes/plugins to register custom root query fields
+        $custom_queries = \apply_filters('nextjs_graphql_hooks_register_queries', []);
+        foreach ($custom_queries as $field_name => $field_config) {
+            $this->register_root_query_field($type_registry, $field_name, $field_config);
+        }
+
+        // Allow themes/plugins to register custom fields on existing types
+        $custom_fields = \apply_filters('nextjs_graphql_hooks_register_fields', []);
+        foreach ($custom_fields as $type_name => $fields) {
+            $this->register_custom_fields($type_registry, $type_name, $fields);
+        }
     }
 
     /**

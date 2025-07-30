@@ -1,8 +1,18 @@
 #!/bin/bash
 
-# Check Versions Script
-# Verifies version consistency across all plugin files
-# Used for quality control and release preparation
+###############################################################################
+# NextJS GraphQL Hooks Plugin - Version Check Script
+#
+# Checks and displays current version numbers across all plugin files
+# Useful for verifying version consistency before and after updates
+#
+# Usage: ./scripts/check-versions.sh
+#
+# @package NextJSGraphQLHooks
+# @since 1.0.0
+# @author Silver Assist
+# @version 1.0.0
+###############################################################################
 
 set -e
 
@@ -11,191 +21,107 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}=== NextJS GraphQL Hooks Version Checker ===${NC}"
-echo ""
-
-# Note: Using arrays instead of associative arrays for macOS bash 3.x compatibility
-
-# Function to extract version from main plugin file
-get_main_version() {
-    if [ -f "nextjs-graphql-hooks.php" ]; then
-        grep "Version:" "nextjs-graphql-hooks.php" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1
-    else
-        echo "FILE_NOT_FOUND"
-    fi
+# Function to print colored output
+print_header() {
+    echo -e "${CYAN}=== $1 ===${NC}"
 }
 
-# Get versions from all files
-get_main_version() {
-    if [ -f "nextjs-graphql-hooks.php" ]; then
-        grep "Version:" "nextjs-graphql-hooks.php" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1
-    else
-        echo "FILE_NOT_FOUND"
-    fi
+print_file() {
+    echo -e "${BLUE}📄 $1${NC}"
 }
 
-# Function to extract version from README.md
-get_readme_version() {
-    if [ -f "README.md" ]; then
-        # Look for version in plugin header or version badge
-        grep -E "(Version|version).*[0-9]+\.[0-9]+\.[0-9]+" "README.md" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1 || echo "NOT_FOUND"
-    else
-        echo "FILE_NOT_FOUND"
-    fi
+print_version() {
+    echo -e "   ${GREEN}Version: $1${NC}"
 }
 
-# Function to extract latest version from CHANGELOG.md
-get_changelog_version() {
-    if [ -f "CHANGELOG.md" ]; then
-        # Look for version headers like ## [1.0.0] or ## Version 1.0.0
-        grep -E "^##\s*(\[)?[vV]?([0-9]+\.[0-9]+\.[0-9]+)" "CHANGELOG.md" | head -1 | sed -E 's/.*[vV]?([0-9]+\.[0-9]+\.[0-9]+).*/\1/' || echo "NOT_FOUND"
-    else
-        echo "FILE_NOT_FOUND"
-    fi
+print_error() {
+    echo -e "   ${RED}❌ $1${NC}"
 }
 
-# Function to validate semantic version format
-is_valid_semver() {
-    if [[ $1 =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        return 0
-    else
-        return 1
-    fi
+print_warning() {
+    echo -e "   ${YELLOW}⚠️  $1${NC}"
 }
 
-# Function to compare versions
-version_compare() {
-    if [[ $1 == $2 ]]; then
-        echo "equal"
-    else
-        # Use sort -V for version comparison
-        if [[ $1 == $(echo -e "$1\n$2" | sort -V | head -1) ]]; then
-            echo "less"
-        else
-            echo "greater"
-        fi
-    fi
-}
+# Get current directory (should be project root)
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-# Get versions from all files
-echo -e "${YELLOW}Extracting versions from files...${NC}"
-echo ""
+echo -e "${CYAN}"
+echo "╔══════════════════════════════════════════════════════════════╗"
+echo "║                    VERSION CHECK REPORT                     ║"
+echo "║                 NextJS GraphQL Hooks Plugin                 ║"
+echo "╚══════════════════════════════════════════════════════════════╝"
+echo -e "${NC}"
 
-main_version=$(get_main_version)
-readme_version=$(get_readme_version)
-changelog_version=$(get_changelog_version)
-
-# Display found versions
-echo "📋 Version Information:"
-echo "======================"
-printf "  %-15s %s\n" "Main Plugin:" "$main_version"
-printf "  %-15s %s\n" "README.md:" "$readme_version"
-printf "  %-15s %s\n" "CHANGELOG:" "$changelog_version"
-echo ""
-
-# Check for issues
-issues_found=0
-reference_version=""
-
-# Determine reference version (from main plugin file)
-if [ "$main_version" != "FILE_NOT_FOUND" ] && [ "$main_version" != "NOT_FOUND" ]; then
-    reference_version="$main_version"
-    echo -e "${GREEN}✅ Using main plugin version as reference: $reference_version${NC}"
-else
-    echo -e "${RED}❌ Could not extract version from main plugin file${NC}"
-    issues_found=$((issues_found + 1))
+# Check if we're in the right directory
+if [ ! -f "${PROJECT_ROOT}/nextjs-graphql-hooks.php" ]; then
+    print_error "Main plugin file not found. Make sure you're running this from the project root."
+    exit 1
 fi
 
-# Validate semantic versioning
-echo ""
-echo "🔍 Semantic Version Validation:"
-echo "==============================="
+print_header "Main Plugin File"
+print_file "nextjs-graphql-hooks.php"
 
-for version in "$main_version" "$readme_version" "$changelog_version"; do
-    if [ "$version" != "FILE_NOT_FOUND" ] && [ "$version" != "NOT_FOUND" ]; then
-        if is_valid_semver "$version"; then
-            echo -e "  ${GREEN}✅ $version - Valid semver${NC}"
+# Extract versions from main file
+PLUGIN_HEADER_VERSION=$(grep -o "Version: [0-9]\+\.[0-9]\+\.[0-9]\+" "${PROJECT_ROOT}/nextjs-graphql-hooks.php" | cut -d' ' -f2)
+PLUGIN_CONSTANT_VERSION=$(grep -o "NEXTJS_GRAPHQL_HOOKS_VERSION.*[0-9]\+\.[0-9]\+\.[0-9]\+" "${PROJECT_ROOT}/nextjs-graphql-hooks.php" | grep -o "[0-9]\+\.[0-9]\+\.[0-9]\+")
+PLUGIN_DOCBLOCK_VERSION=$(grep -o "@version [0-9]\+\.[0-9]\+\.[0-9]\+" "${PROJECT_ROOT}/nextjs-graphql-hooks.php" | cut -d' ' -f2)
+
+if [ -n "$PLUGIN_HEADER_VERSION" ]; then
+    print_version "Plugin Header: $PLUGIN_HEADER_VERSION"
+else
+    print_error "Plugin header version not found"
+fi
+
+if [ -n "$PLUGIN_CONSTANT_VERSION" ]; then
+    print_version "Plugin Constant: $PLUGIN_CONSTANT_VERSION"
+else
+    print_error "Plugin constant version not found"
+fi
+
+if [ -n "$PLUGIN_DOCBLOCK_VERSION" ]; then
+    print_version "DocBlock: $PLUGIN_DOCBLOCK_VERSION"
+else
+    print_error "DocBlock version not found"
+fi
+
+# Set main version for comparison
+MAIN_VERSION="$PLUGIN_HEADER_VERSION"
+
+echo ""
+print_header "PHP Files (includes/)"
+
+find "${PROJECT_ROOT}/includes" -name "*.php" -type f | sort | while read -r file; do
+    filename=$(basename "$file")
+    print_file "$filename"
+    
+    version=$(grep -o "@version [0-9]\+\.[0-9]\+\.[0-9]\+" "$file" 2>/dev/null | cut -d' ' -f2)
+    
+    if [ -n "$version" ]; then
+        if [ "$version" = "$MAIN_VERSION" ]; then
+            print_version "$version ✓"
         else
-            echo -e "  ${RED}❌ $version - Invalid semver format${NC}"
-            issues_found=$((issues_found + 1))
+            print_warning "$version (differs from main: $MAIN_VERSION)"
         fi
+    else
+        print_error "No @version tag found"
     fi
 done
 
-# Check version consistency
-if [ -n "$reference_version" ]; then
-    echo ""
-    echo "🔄 Version Consistency Check:"
-    echo "============================="
-    
-    # Check README version
-    if [ "$readme_version" != "FILE_NOT_FOUND" ] && [ "$readme_version" != "NOT_FOUND" ]; then
-        if [ "$readme_version" = "$reference_version" ]; then
-            echo -e "  ${GREEN}✅ README.md version matches${NC}"
-        else
-            echo -e "  ${RED}❌ README.md version mismatch: $readme_version (expected: $reference_version)${NC}"
-            issues_found=$((issues_found + 1))
-        fi
-    else
-        echo -e "  ${YELLOW}⚠️  README.md version not found or file missing${NC}"
-    fi
-    
-    # Check CHANGELOG version
-    if [ "$changelog_version" != "FILE_NOT_FOUND" ] && [ "$changelog_version" != "NOT_FOUND" ]; then
-        comparison=$(version_compare "$changelog_version" "$reference_version")
-        case $comparison in
-            "equal")
-                echo -e "  ${GREEN}✅ CHANGELOG.md version matches${NC}"
-                ;;
-            "greater")
-                echo -e "  ${YELLOW}⚠️  CHANGELOG.md has newer version: $changelog_version${NC}"
-                echo -e "     ${YELLOW}Consider updating main plugin version${NC}"
-                ;;
-            "less")
-                echo -e "  ${RED}❌ CHANGELOG.md has older version: $changelog_version (expected: $reference_version)${NC}"
-                issues_found=$((issues_found + 1))
-                ;;
-        esac
-    else
-        echo -e "  ${YELLOW}⚠️  CHANGELOG.md version not found or file missing${NC}"
-    fi
-fi
-
-# Check if Git tag exists for current version
-if [ -n "$reference_version" ]; then
-    echo ""
-    echo "🏷️  Git Tag Check:"
-    echo "================="
-    
-    if git tag -l | grep -q "^v${reference_version}$"; then
-        echo -e "  ${GREEN}✅ Git tag v${reference_version} exists${NC}"
-    else
-        echo -e "  ${YELLOW}⚠️  Git tag v${reference_version} does not exist${NC}"
-        echo -e "     ${YELLOW}Run: git tag v${reference_version}${NC}"
-    fi
-fi
-
-# Final summary
 echo ""
-echo "📊 Summary:"
-echo "==========="
+print_header "Summary"
 
-if [ $issues_found -eq 0 ]; then
-    echo -e "${GREEN}✅ All version checks passed!${NC}"
-    echo -e "${GREEN}   Ready for release${NC}"
-    exit 0
+if [ -n "$MAIN_VERSION" ]; then
+    echo -e "${GREEN}✓ Main plugin version: $MAIN_VERSION${NC}"
 else
-    echo -e "${RED}❌ Found $issues_found version issues${NC}"
-    echo -e "${RED}   Please fix version inconsistencies before release${NC}"
-    
-    # Suggest fixes
-    echo ""
-    echo -e "${YELLOW}💡 Suggested fixes:${NC}"
-    echo "   1. Run: ./scripts/update-version.sh $reference_version"
-    echo "   2. Review and update CHANGELOG.md"
-    echo "   3. Re-run this script to verify"
-    
-    exit 1
+    echo -e "${RED}❌ Could not determine main plugin version${NC}"
 fi
+
+echo ""
+echo -e "${BLUE}💡 Tips:${NC}"
+echo "• Use ${YELLOW}./scripts/update-version.sh <version>${NC} to update all versions"
+echo "• Green checkmarks (✓) indicate files matching the main version"
+echo "• Warnings (⚠️) indicate version mismatches that may need attention"
+echo "• Errors (❌) indicate missing version tags"
