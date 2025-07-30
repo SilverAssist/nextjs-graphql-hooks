@@ -8,8 +8,8 @@ NextJS GraphQL Hooks provides essential GraphQL queries and types that are commo
 
 ## Features
 
-- **Default Page Fields**: Automatically adds `elementorContent` and `elementorCSSFile` fields to Page queries
-- **Elementor Integration**: Provides `elementorLibraryKit` query for global Elementor styles
+- **Default Page Fields**: Automatically adds `elementorContent` and `elementorCSSFile` fields to Page queries (requires Elementor)
+- **Elementor Integration**: Provides `elementorLibraryKit` query for global Elementor styles (requires Elementor)
 - **Extensible Architecture**: Use filters to register custom GraphQL types and fields
 - **Modern PHP 8.0+**: Built with modern PHP features including typed properties, match expressions, and namespaces
 - **Singleton Pattern**: Efficient resource management with singleton instances
@@ -22,7 +22,7 @@ NextJS GraphQL Hooks provides essential GraphQL queries and types that are commo
 - WordPress 6.5+
 - PHP 8.0+
 - WPGraphQL plugin (automatically managed as dependency)
-- Elementor (optional, for Elementor-related features)
+- Elementor plugin (required for GraphQL queries)
 
 ## Compatibility
 
@@ -66,22 +66,23 @@ NextJS GraphQL Hooks provides essential GraphQL queries and types that are commo
 - **WordPress 6.0-6.4**: Must be installed manually
 - **Minimum Version**: Latest stable version recommended
 
-#### Elementor (Optional)
-- **Optional**: Only needed for Elementor-specific features
-- **Features Affected**: 
-  - `elementorContent` field
-  - `elementorCSSFile` field
-  - `elementorLibraryKit` query
-- **Graceful Degradation**: Plugin works without Elementor, but Elementor-specific fields will be unavailable
+#### Elementor Plugin
+- **Required**: Essential for all GraphQL queries and functionality
+- **Features Provided**: 
+  - `elementorContent` field - Returns Elementor page content
+  - `elementorCSSFile` field - Returns CSS file URLs
+  - `elementorLibraryKit` query - Global Elementor styles and kit information
+- **Minimum Version**: Latest stable version recommended
+- **Note**: Plugin will not function without Elementor as all GraphQL queries depend on Elementor data
 
 ### Feature Compatibility Matrix
 
 | Feature | WordPress 6.5+ | WordPress 6.0-6.4 | Notes |
 |---------|----------------|-------------------|-------|
 | Auto Dependencies | ✅ Full Support | ❌ Manual Required | Core WP feature |
-| GraphQL Fields | ✅ Full Support | ✅ Full Support | Core functionality |
+| GraphQL Fields | ✅ Full Support | ✅ Full Support | Requires Elementor |
 | Auto Updates | ✅ Full Support | ✅ Full Support | GitHub integration |
-| Elementor Integration | ✅ Full Support | ✅ Full Support | Optional feature |
+| Elementor Integration | ✅ Required | ✅ Required | Core functionality |
 | Admin Interface | ✅ Full Support | ✅ Full Support | Settings page |
 | Error Handling | ✅ Full Support | ✅ Full Support | Graceful fallbacks |
 
@@ -92,14 +93,20 @@ NextJS GraphQL Hooks provides essential GraphQL queries and types that are commo
 - **WordPress 6.0-6.4**: Install WPGraphQL manually
 - **Solution**: Ensure WPGraphQL is active and up to date
 
+#### "Elementor Required" Notice
+- **All WordPress Versions**: Install and activate Elementor plugin
+- **Solution**: Download Elementor from WordPress.org repository or Elementor website
+- **Note**: Plugin functionality depends entirely on Elementor being active
+
 #### Plugin Not Loading
 - **Check PHP Version**: Must be 8.0 or higher
 - **Check WordPress Version**: Must be 6.0 or higher (6.5+ recommended)
-- **Check Dependencies**: Ensure WPGraphQL is installed and active
+- **Check Dependencies**: Ensure both WPGraphQL and Elementor are installed and active
 
 #### GraphQL Fields Missing
 - **WPGraphQL Status**: Verify WPGraphQL is active
-- **Plugin Order**: Ensure NextJS GraphQL Hooks loads after WPGraphQL
+- **Elementor Status**: Verify Elementor is active and configured
+- **Plugin Order**: Ensure NextJS GraphQL Hooks loads after both WPGraphQL and Elementor
 - **Cache**: Clear any caching that might affect GraphQL schema
 
 ## Download
@@ -109,7 +116,7 @@ The plugin is available as a ready-to-install ZIP file from GitHub releases:
 - **Package Size**: ~13KB (compressed)
 - **Compatibility**: WordPress 6.5+ with PHP 8.0+
 - **Auto-Updates**: Included from GitHub releases
-- **Dependencies**: WPGraphQL (automatically managed)
+- **Dependencies**: WPGraphQL and Elementor (automatically managed on WordPress 6.5+)
 
 📦 **[Download Latest Release](https://github.com/SilverAssist/nextjs-graphql-hooks/releases/latest)**
 
@@ -123,7 +130,7 @@ The plugin is available as a ready-to-install ZIP file from GitHub releases:
 4. **Upload Plugin**: Click the `Upload Plugin` button at the top of the page
 5. **Choose File**: Click `Choose File` and select the downloaded ZIP file
 6. **Install**: Click `Install Now` and wait for the upload to complete
-7. **Dependencies**: WordPress will automatically prompt to install WPGraphQL if needed (WP 6.5+)
+7. **Dependencies**: WordPress will automatically prompt to install WPGraphQL and Elementor if needed (WP 6.5+)
 8. **Activate**: Click `Activate Plugin` to enable the NextJS GraphQL Hooks plugin
 
 ### Method 2: Manual Installation via FTP
@@ -147,13 +154,13 @@ wp plugin activate nextjs-graphql-hooks
 ### Verification
 
 After installation, you should see:
-- **Automatic Dependencies**: WordPress will automatically prompt to install WPGraphQL if not present (WordPress 6.5+)
+- **Automatic Dependencies**: WordPress will automatically prompt to install WPGraphQL and Elementor if not present (WordPress 6.5+)
 - **GraphQL Fields**: `elementorContent` and `elementorCSSFile` fields available in Page queries
 - **Custom Queries**: `elementorLibraryKit` query available in GraphQL
 - **Auto-Updates**: Update notifications in WordPress admin when new releases are available
 - **Settings Page**: "GraphQL Hooks Updates" under Settings menu for manual update checks
 
-> **Note**: If you're using WordPress 6.5 or later, the WPGraphQL dependency will be automatically managed by WordPress. For older WordPress versions, you'll need to install WPGraphQL manually.
+> **Note**: If you're using WordPress 6.5 or later, both WPGraphQL and Elementor dependencies will be automatically managed by WordPress. For older WordPress versions, you'll need to install both plugins manually.
 
 ### Auto-Updates
 The plugin includes an auto-update system that checks for new releases on GitHub. Updates can be installed directly from the WordPress admin panel under **Dashboard** → **Updates**.
