@@ -134,14 +134,16 @@ nextjs-graphql-hooks/
 │   ├── update-version.sh             # Version update automation
 │   ├── update-version-simple.sh      # Simple version update (Perl-based)
 │   └── README.md                     # Scripts documentation
+├── vendor/                           # Composer dependencies (auto-generated)
+│   ├── autoload.php                  # Composer autoloader
+│   ├── composer/                     # Composer metadata
+│   └── silverassist/wp-github-updater/ # GitHub updater package
+├── .gitattributes                    # Git export control for releases
 ├── composer.json                     # Composer configuration
 ├── .phpcs.xml.dist                   # PHP CodeSniffer configuration
 ├── CHANGELOG.md                      # Version history
 ├── LICENSE                           # GPL v2 license
-├── README.md                         # Plugin documentation
-├── RELEASE-PROCESS.md                # Release workflow guide
-├── UPDATE-SYSTEM.md                  # Auto-update documentation
-└── QUICK-RELEASE.md                  # Emergency release procedures
+└── README.md                         # Plugin documentation
 ```
 
 ## Development Guidelines

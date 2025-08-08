@@ -3,7 +3,7 @@
  * Plugin Name: NextJS GraphQL Hooks
  * Plugin URI: https://github.com/SilverAssist/nextjs-graphql-hooks
  * Description: Creates default GraphQL queries for NextJS sites with extensible type registration through filters.
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Silver Assist
  * Author URI: http://silverassist.com/
  * Text Domain: nextjs-graphql-hooks
@@ -31,7 +31,7 @@
  *
  * @package NextJSGraphQLHooks
  * @since 1.0.0
- * @version 1.0.1
+ * @version 1.0.2
  * @author Silver Assist
  */
 
@@ -40,8 +40,14 @@ namespace NextJSGraphQLHooks;
 // Prevent direct access
 defined("ABSPATH") or exit;
 
+// Load Composer autoloader if available
+$autoload_file = __DIR__ . "/vendor/autoload.php";
+if (file_exists($autoload_file)) {
+  require_once $autoload_file;
+}
+
 // Define plugin constants
-define("NEXTJS_GRAPHQL_HOOKS_VERSION", "1.0.1");
+define("NEXTJS_GRAPHQL_HOOKS_VERSION", "1.0.2");
 define("NEXTJS_GRAPHQL_HOOKS_PLUGIN_DIR", plugin_dir_path(__FILE__));
 define("NEXTJS_GRAPHQL_HOOKS_PLUGIN_URL", plugin_dir_url(__FILE__));
 define("NEXTJS_GRAPHQL_HOOKS_PLUGIN_FILE", __FILE__);

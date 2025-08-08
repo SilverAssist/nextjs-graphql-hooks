@@ -717,11 +717,6 @@ The plugin includes comprehensive error handling:
 
 ## Development & Release Process
 
-### Documentation
-- [Release Process Guide](RELEASE-PROCESS.md) - Complete release workflow
-- [Update System Guide](UPDATE-SYSTEM.md) - Auto-update system details
-- [Quick Release Guide](QUICK-RELEASE.md) - Emergency release procedures
-
 ### GitHub Workflows
 - **Quality Checks**: Automated code validation and WordPress standards
 - **Size Check**: Package size monitoring for pull requests

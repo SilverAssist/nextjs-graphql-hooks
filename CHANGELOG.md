@@ -5,6 +5,41 @@ All notable changes to the NextJS GraphQL Hooks Plugin will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2025-08-07
+
+### 🚀 Major Updates
+- **Modularized Updater System**: Integrated reusable `silverassist/wp-github-updater` package
+- **Optimized Build Process**: Enhanced release script with production-only dependencies
+- **Improved CI/CD**: Updated GitHub Actions workflow with Composer support
+
+### ✨ Added
+- Composer autoloader integration in main plugin file
+- Production dependency management in build script
+- Optimized vendor directory packaging (only necessary files)
+- Automatic development dependency restoration after build
+
+### 🔧 Changed
+- **BREAKING**: Refactored `Updater.php` class to extend `SilverAssist\WpGithubUpdater\Updater`
+- Reduced Updater class from ~200 lines to ~35 lines (-82% code reduction)
+- Updated `create-release-zip.sh` script with Composer dependency handling
+- Enhanced GitHub Actions workflow with PHP setup and dependency installation
+
+### 🐛 Fixed
+- Resolved missing dependencies in CI/CD pipeline
+- Fixed release package size optimization (now includes only production dependencies)
+- Improved error handling in build scripts
+
+### 📚 Technical Details
+- **Dependencies**: Added `silverassist/wp-github-updater:^1.0`
+- **Build Size**: Optimized from ~50KB to ~156KB (includes vendor dependencies)
+- **Maintainability**: Centralized update logic in external package
+- **Compatibility**: Maintains full backward compatibility
+
+### 🔄 Migration Notes
+- Existing installations will automatically use the new updater system
+- No manual intervention required for end users
+- Developers can now reuse the same updater package across multiple plugins
+
 ## [1.0.1] - 2025-07-30
 
 ### Updated

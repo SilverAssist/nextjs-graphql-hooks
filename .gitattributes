@@ -1,0 +1,85 @@
+# .gitattributes for NextJS GraphQL Hooks Plugin
+
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Exclude development files from releases/archives
+.github/ export-ignore
+.gitattributes export-ignore
+.gitignore export-ignore
+composer.lock export-ignore
+phpcs.xml export-ignore
+phpstan.neon export-ignore
+phpunit.xml export-ignore
+
+# Scripts directory - keep only essential scripts
+scripts/check-versions.sh export-ignore
+scripts/update-version.sh export-ignore
+scripts/update-version-simple.sh export-ignore
+scripts/build-release.sh export-ignore
+scripts/README.md export-ignore
+
+# Development and testing files
+tests/ export-ignore
+.phpcs.xml.dist export-ignore
+
+# Documentation that shouldn't be in production
+CONTRIBUTING.md export-ignore
+CODE_OF_CONDUCT.md export-ignore
+
+# Keep these files in releases
+README.md
+CHANGELOG.md
+LICENSE
+composer.json
+nextjs-graphql-hooks.php
+includes/
+vendor/
+
+# Binary files
+*.zip binary
+*.tar.gz binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.gif binary
+*.ico binary
+*.pdf binary
+
+# PHP files
+*.php text diff=php
+
+# Web files
+*.js text
+*.css text
+*.html text
+*.xml text
+*.json text
+
+# Configuration files
+*.yml text
+*.yaml text
+*.ini text
+*.conf text
+*.config text
+
+# Documentation
+*.md text
+*.txt text
+*.rst text
+
+# Line ending normalization for cross-platform compatibility
+*.php text eol=lf
+*.js text eol=lf
+*.css text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.xml text eol=lf
+*.txt text eol=lf
+*.sh text eol=lf
+
+# Batch files (Windows)
+*.bat text eol=crlf
+*.cmd text eol=crlf

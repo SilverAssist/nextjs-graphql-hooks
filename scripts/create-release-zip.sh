@@ -27,6 +27,11 @@ fi
 echo -e "${GREEN}📦 Creating ZIP for version: ${VERSION}${NC}"
 echo ""
 
+# Check if vendor directory exists (should have Composer dependencies)
+if [ ! -d "vendor" ]; then
+    echo -e "${YELLOW}⚠️  Warning: vendor/ directory not found. Run 'composer install' first.${NC}"
+fi
+
 # Define files and directories to include
 ZIP_NAME="nextjs-graphql-hooks-v${VERSION}.zip"
 TEMP_DIR="/tmp/nextjs-graphql-hooks-release"
@@ -39,6 +44,16 @@ fi
 
 # Create temporary directory structure
 mkdir -p "$PLUGIN_DIR"
+
+# Install production dependencies
+echo -e "${YELLOW}📦 Installing production dependencies...${NC}"
+composer install --no-dev --optimize-autoloader --no-interaction
+
+if [ $? -ne 0 ]; then
+    echo -e "${RED}❌ Failed to install production dependencies${NC}"
+    exit 1
+fi
+echo -e "${GREEN}  ✅ Production dependencies installed successfully${NC}"
 
 echo -e "${YELLOW}📋 Copying files...${NC}"
 
@@ -66,6 +81,27 @@ if [ -f "composer.json" ]; then
     echo "  ✅ composer.json copied (version field excluded for Packagist compatibility)"
 fi
 
+# Copy optimized vendor dependencies
+if [ -d "vendor" ]; then
+    echo -e "${YELLOW}📦 Copying optimized vendor dependencies...${NC}"
+    
+    # Create vendor directory in plugin temp folder
+    mkdir -p "$PLUGIN_DIR/vendor"
+    
+    # Copy Composer autoloader and essential files
+    cp vendor/autoload.php "$PLUGIN_DIR/vendor/"
+    cp -r vendor/composer/ "$PLUGIN_DIR/vendor/"
+    
+    # Copy only the silverassist/wp-github-updater package (optimized)
+    if [ -d "vendor/silverassist/wp-github-updater" ]; then
+        mkdir -p "$PLUGIN_DIR/vendor/silverassist"
+        cp -r vendor/silverassist/wp-github-updater "$PLUGIN_DIR/vendor/silverassist/"
+        echo "    ✅ silverassist/wp-github-updater (optimized)"
+    fi
+    
+    echo "  ✅ Vendor dependencies copied"
+fi
+
 echo "  ✅ Main plugin files copied"
 
 # Create the ZIP file
@@ -79,6 +115,11 @@ cd "$OLDPWD"
 
 # Clean up temp directory
 rm -rf "$TEMP_DIR"
+
+# Restore development dependencies for local environment
+echo -e "${YELLOW}📦 Restoring development dependencies for local environment...${NC}"
+composer install --no-interaction > /dev/null 2>&1
+echo -e "${GREEN}  ✅ Development environment restored${NC}"
 
 # Get ZIP size
 ZIP_SIZE=$(du -h "$ZIP_NAME" | cut -f1)
@@ -95,6 +136,11 @@ echo "   ├── README.md"
 echo "   ├── CHANGELOG.md"
 echo "   ├── LICENSE"
 echo "   ├── includes/"
+echo "   ├── composer.json"
+echo "   ├── vendor/"
+echo "   │   ├── autoload.php"
+echo "   │   ├── composer/"
+echo "   │   └── silverassist/wp-github-updater/"
 echo "   └── (other files)"
 echo ""
 echo -e "${GREEN}🎉 Ready for WordPress installation!${NC}"
