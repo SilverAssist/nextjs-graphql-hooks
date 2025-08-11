@@ -121,7 +121,7 @@ fi
 
 echo ""
 echo -e "${BLUE}💡 Tips:${NC}"
-echo "• Use ${YELLOW}./scripts/update-version.sh <version>${NC} to update all versions"
+echo "• Use ${YELLOW}./scripts/update-version-simple.sh <version>${NC} to update all versions"
 echo "• Green checkmarks (✓) indicate files matching the main version"
 echo "• Warnings (⚠️) indicate version mismatches that may need attention"
 echo "• Errors (❌) indicate missing version tags"

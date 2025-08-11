@@ -134,9 +134,7 @@ class GraphQL_Hooks
         $type_registry->register_field("RootQuery", "elementorLibraryKit", [
             "type" => "ElementorLibraryKit",
             "description" => \__("Elementor library kit information", "nextjs-graphql-hooks"),
-            "resolve" => function (): array {
-                return $this->get_elementor_library_kit();
-            }
+            "resolve" => fn(): array => $this->get_elementor_library_kit()
         ]);
     }
 

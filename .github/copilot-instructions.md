@@ -131,7 +131,6 @@ nextjs-graphql-hooks/
 ├── scripts/
 │   ├── check-versions.sh             # Version consistency verification
 │   ├── create-release-zip.sh         # Release package creation
-│   ├── update-version.sh             # Version update automation
 │   ├── update-version-simple.sh      # Simple version update (Perl-based)
 │   └── README.md                     # Scripts documentation
 ├── vendor/                           # Composer dependencies (auto-generated)
@@ -502,17 +501,9 @@ query GetKit {
    - Identifies version mismatches and missing version tags
    - Provides clear colored output for easy reading
 
-2. **`update-version.sh`**: Comprehensive version update automation
-   - Updates main plugin file (header, constant, @version)
-   - Updates all PHP files (@version tags)
-   - Updates CSS and JavaScript files (@version tags) if present
-   - Validates semantic version format
-   - Provides confirmation before making changes
-   - May have compatibility issues with macOS sed
-
-3. **`update-version-simple.sh`**: Perl-based version updater (recommended)
+1. **`update-version-simple.sh`**: Perl-based version updater (recommended)
    - More reliable than sed-based version on macOS
-   - Same functionality as update-version.sh but with better cross-platform compatibility
+   - Comprehensive version update automation
    - Uses Perl for text replacement instead of sed
    - Handles optional directories gracefully (assets, blocks)
 
@@ -546,9 +537,6 @@ query GetKit {
 # 2. Update to new version (recommended method - more reliable on macOS)
 ./scripts/update-version-simple.sh 1.0.2
 
-# Alternative: Original sed-based updater (may have macOS compatibility issues)
-./scripts/update-version.sh 1.0.2
-
 # 3. Verify all versions were updated
 ./scripts/check-versions.sh
 
@@ -569,12 +557,6 @@ git push origin main && git push origin v1.0.2
 - Better error handling for missing directories
 - Handles optional asset directories gracefully
 - More consistent behavior on macOS and Linux
-
-**`update-version.sh` (Alternative)**
-- Uses sed for text replacement
-- May have compatibility issues with macOS sed
-- More verbose output and backup creation
-- Comprehensive file validation
 
 ## Future Enhancements
 

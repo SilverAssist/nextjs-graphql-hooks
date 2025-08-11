@@ -51,7 +51,7 @@ class Updater extends GitHubUpdater
         "ajax_nonce" => "nextjs_graphql_hooks_ajax"
       ]
     );
-    
+
     parent::__construct($config);
   }
 }

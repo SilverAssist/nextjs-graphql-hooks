@@ -12,8 +12,7 @@ This system completely automates the release creation process for the NextJS Gra
 
 ### Local Scripts
 - **`scripts/calculate-size.sh`** - Local package size calculation
-- **`scripts/update-version.sh`** - Original automated version updating (macOS sed issues)
-- **`scripts/update-version-simple.sh`** - Improved version updater using Perl (recommended)
+- **`scripts/update-version-simple.sh`** - Simplified Perl-based version updating (recommended)
 - **`scripts/check-versions.sh`** - Version consistency verification
 
 ## 🔄 Automated Workflow
@@ -193,14 +192,11 @@ zip -r nextjs-graphql-hooks-v1.0.1.zip nextjs-graphql-hooks-v1.0.1/
 **⚠️ Important: Use the improved script for better reliability**
 
 ```bash
-# Recommended: Use the improved Perl-based updater (more reliable on macOS)
+# Use the Perl-based updater (recommended for cross-platform compatibility)
 ./scripts/update-version-simple.sh 1.0.2
-
-# Alternative: Original sed-based updater (may have issues on macOS)
-./scripts/update-version.sh 1.0.2
 ```
 
-**Note:** The original `update-version.sh` script may have compatibility issues with macOS `sed` command. The `update-version-simple.sh` script uses Perl for more reliable text replacement across different systems.
+The `update-version-simple.sh` script uses Perl for more reliable text replacement across different systems.
 
 **What gets updated:**
 - Plugin header version in `nextjs-graphql-hooks.php`
@@ -266,10 +262,12 @@ git push origin v1.0.2
 
 ### Version Update Script Issues
 
-**Problem:** `update-version.sh` doesn't update all files properly on macOS
-- **Cause:** macOS `sed` command has different behavior than GNU `sed`
-- **Solution:** Use `./scripts/update-version-simple.sh` instead
-- **Details:** The simple version uses Perl which is more consistent across systems
+### Cross-Platform Compatibility
+
+**Problem:** Version update scripts may behave differently on macOS vs Linux
+- **Cause:** Different `sed` implementations between macOS and GNU/Linux
+- **Solution:** Use `./scripts/update-version-simple.sh` which uses Perl for consistent behavior
+- **Details:** Perl-based text replacement is more reliable across systems
 
 **Symptoms:**
 - Only main plugin file gets updated

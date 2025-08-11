@@ -14,7 +14,6 @@ phpunit.xml export-ignore
 
 # Scripts directory - keep only essential scripts
 scripts/check-versions.sh export-ignore
-scripts/update-version.sh export-ignore
 scripts/update-version-simple.sh export-ignore
 scripts/build-release.sh export-ignore
 scripts/README.md export-ignore

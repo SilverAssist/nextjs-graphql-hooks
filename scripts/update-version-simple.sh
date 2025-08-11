@@ -128,7 +128,6 @@ print_success "PHP files updated"
 
 # 3. Update this script
 print_status "Updating version scripts..."
-update_file "${PROJECT_ROOT}/scripts/update-version.sh" "s/\@version [0-9]+\.[0-9]+\.[0-9]+/\@version ${NEW_VERSION}/g"
 update_file "${PROJECT_ROOT}/scripts/update-version-simple.sh" "s/\@version [0-9]+\.[0-9]+\.[0-9]+/\@version ${NEW_VERSION}/g"
 
 print_success "Version scripts updated"
