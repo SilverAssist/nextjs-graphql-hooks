@@ -746,3 +746,7 @@ For support and feature requests, please contact Silver Assist or open an issue 
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed version history and changes.
+
+---
+
+**Made with ❤️ by [Silver Assist](https://silverassist.com)**
