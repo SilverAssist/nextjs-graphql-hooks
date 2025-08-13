@@ -8,7 +8,7 @@
  * @package NextJSGraphQLHooks
  * @since 1.0.0
  * @author Silver Assist
- * @version 1.0.2
+ * @version 1.0.3
  * @license GPL v2 or later
  */
 
@@ -48,7 +48,8 @@ class Updater extends GitHubUpdater
         "asset_pattern" => "nextjs-graphql-hooks-v{version}.zip",
         "cache_duration" => 12 * 3600, // 12 hours
         "ajax_action" => "nextjs_graphql_hooks_check_version",
-        "ajax_nonce" => "nextjs_graphql_hooks_ajax"
+        "ajax_nonce" => "nextjs_graphql_hooks_ajax",
+        "text_domain" => "nextjs-graphql-hooks"
       ]
     );
 
