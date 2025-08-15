@@ -141,7 +141,7 @@ nextjs-graphql-hooks/
 ├── composer.json                     # Composer configuration
 ├── .phpcs.xml.dist                   # PHP CodeSniffer configuration
 ├── CHANGELOG.md                      # Version history
-├── LICENSE                           # GPL v2 license
+├── LICENSE                           # Polyform Noncommercial license
 └── README.md                         # Plugin documentation
 ```
 

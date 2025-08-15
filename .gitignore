@@ -34,3 +34,6 @@ Thumbs.db
 *.tmp
 *.bak
 *.backup
+
+# Zip files
+*.zip

@@ -98,7 +98,7 @@ jobs:
                   - **File**: nextjs-graphql-hooks-v$VERSION.zip
                   - **Size**: ~$PACKAGE_SIZE
                   - **Release Date**: $DATE
-                  - **License**: GPL v2 or later
+                  - **License**: Polyform Noncommercial License 1.0.0
                   - **Repository**: https://github.com/SilverAssist/nextjs-graphql-hooks
 
                   ## Installation Package Contents
@@ -126,7 +126,7 @@ jobs:
                   - ✅ Extensible Architecture
                   - ✅ Modern PHP 8.0+ Features
                   - ✅ Auto-update System
-                  - ✅ GPL v2 Licensed
+                  - ✅ Polyform Noncommercial Licensed
 
                   ## Distribution Channels
                   - **GitHub Releases**: Source code and compiled packages
@@ -184,7 +184,7 @@ jobs:
                   ## 📦 Package Information
                   - **File**: nextjs-graphql-hooks-v$VERSION.zip
                   - **Size**: ~${{ steps.package.outputs.package_size_kb }}
-                  - **License**: GPL v2 or later
+                  - **License**: Polyform Noncommercial License 1.0.0
 
                   ## 🚀 Installation
                   1. Download the ZIP file below

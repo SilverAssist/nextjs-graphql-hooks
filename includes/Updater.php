@@ -9,7 +9,7 @@
  * @since 1.0.0
  * @author Silver Assist
  * @version 1.0.3
- * @license GPL v2 or later
+ * @license Polyform Noncommercial License 1.0.0
  */
 
 namespace NextJSGraphQLHooks;

@@ -127,6 +127,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Requires PHP 8.0+
 - Requires WPGraphQL plugin
 - Optional Elementor integration
-- GPL v2 or later license
+- Polyform Noncommercial License 1.0.0
 - Text domain: `nextjs-graphql-hooks`
 - Author: Silver Assist

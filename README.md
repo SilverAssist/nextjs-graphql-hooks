@@ -724,7 +724,7 @@ The plugin includes comprehensive error handling:
 
 ## License
 
-GPL v2 or later
+Polyform Noncommercial License 1.0.0
 
 ## Author
 
@@ -733,11 +733,7 @@ Website: http://silverassist.com/
 
 ## License
 
-This project is licensed under the GPL v2 or later - see the [LICENSE](LICENSE) file for details.
-
-**NextJS GraphQL Hooks** is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 2 of the License, or any later version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+This project is licensed under the [Polyform Noncommercial License 1.0.0](LICENSE) for noncommercial use only.
 
 ## Support
 
