@@ -5,6 +5,74 @@ All notable changes to the NextJS GraphQL Hooks Plugin will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2025-10-10
+
+### ✨ New Features
+- **Settings Hub Integration**: Added support for `silverassist/wp-settings-hub` package
+  - Centralized admin menu under "Silver Assist" menu
+  - Graceful fallback to standalone settings page when Settings Hub unavailable
+  - Comprehensive admin panel with plugin status and documentation
+- **Admin Interface**: New admin panel with multiple sections
+  - Plugin status display (version, dependencies)
+  - Available GraphQL queries documentation
+  - Extensibility guide with filter examples
+  - Documentation links and resources
+- **Update Checking**: Integrated update check button
+  - One-click update checking from admin panel
+  - WordPress-style admin notifications
+  - Auto-redirect to plugins page when update available
+- **Code Examples**: Interactive code blocks
+  - Click-to-copy functionality for all code examples
+  - Syntax highlighting for better readability
+  - GraphQL query examples and filter usage
+
+### 🎨 Assets
+- **Admin CSS**: Modern, responsive admin interface styles
+  - CSS custom properties for easy theming
+  - Status badges and visual indicators
+  - Mobile-responsive design
+  - WordPress-compliant styling
+- **Admin JavaScript**: Enhanced user experience
+  - Copy-to-clipboard functionality
+  - Smooth scrolling
+  - WordPress admin notice system
+  - Update checking via AJAX
+
+### 🔧 Enhanced
+- **Security**: Comprehensive security implementation
+  - Nonce verification for all AJAX requests
+  - Capability checking for admin access
+  - Sanitized output and escaped HTML
+  - Error logging without exposing sensitive data
+- **Compatibility**: Multiple hook suffix support
+  - Works in standalone mode
+  - Works with Settings Hub
+  - Works with custom menu configurations
+
+### 📚 Documentation
+- **Centralized Documentation**: All documentation consolidated in README.md
+  - Admin panel usage guide
+  - Settings Hub integration details
+  - Troubleshooting and best practices
+  - No separate MD files - all in README and Copilot instructions
+- **Updated Copilot Instructions**: Added rule to prevent creating additional MD files
+  - All technical documentation in copilot-instructions.md
+  - All user documentation in README.md
+  - Maintains clean repository structure
+
+### 🛠️ Technical
+- **Dependencies**: Added `silverassist/wp-settings-hub` ^1.1
+- **Files Added**:
+  - `includes/AdminPanel.php` - Main admin panel class
+  - `assets/css/admin.css` - Admin interface styles
+  - `assets/js/admin.js` - Admin functionality
+  - `assets/js/update-check.js` - Update checking
+  - `SETTINGS_HUB_INTEGRATION.md` - Integration documentation
+  - `assets/README.md` - Assets documentation
+- **Hook Priority**: Registers at priority 4 to ensure proper Settings Hub integration
+- **Singleton Pattern**: AdminPanel uses singleton pattern for consistency
+- **AJAX Handlers**: Secure AJAX endpoints for update checking
+
 ## [1.0.3] - 2025-08-12
 
 ### 🔧 Enhanced

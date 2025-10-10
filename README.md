@@ -16,6 +16,8 @@ NextJS GraphQL Hooks provides essential GraphQL queries and types that are commo
 - **Error Handling**: Comprehensive error logging and graceful fallbacks
 - **Auto-Update System**: Automatic updates from GitHub releases
 - **GitHub Workflows**: Automated quality checks and release management
+- **Admin Interface**: Comprehensive settings page with plugin status and documentation
+- **Settings Hub Integration**: Centralized admin menu for Silver Assist plugins (when available)
 
 ## Requirements
 
@@ -154,16 +156,75 @@ wp plugin activate nextjs-graphql-hooks
 ### Verification
 
 After installation, you should see:
+- **Admin Panel**: Access the plugin settings under "Silver Assist" → "NextJS GraphQL Hooks" (if Settings Hub is active) or "Settings" → "NextJS GraphQL" (standalone)
 - **Automatic Dependencies**: WordPress will automatically prompt to install WPGraphQL and Elementor if not present (WordPress 6.5+)
 - **GraphQL Fields**: `elementorContent` and `elementorCSSFile` fields available in Page queries
 - **Custom Queries**: `elementorLibraryKit` query available in GraphQL
 - **Auto-Updates**: Update notifications in WordPress admin when new releases are available
-- **Settings Page**: "GraphQL Hooks Updates" under Settings menu for manual update checks
+- **Update Check Button**: One-click update checking from the admin panel
 
 > **Note**: If you're using WordPress 6.5 or later, both WPGraphQL and Elementor dependencies will be automatically managed by WordPress. For older WordPress versions, you'll need to install both plugins manually.
 
 ### Auto-Updates
 The plugin includes an auto-update system that checks for new releases on GitHub. Updates can be installed directly from the WordPress admin panel under **Dashboard** → **Updates**.
+
+## Admin Interface
+
+### Accessing the Admin Panel
+
+The plugin provides a comprehensive admin interface for managing settings and viewing documentation.
+
+#### Settings Hub Integration (Recommended)
+When other Silver Assist plugins are installed, the admin panel appears in a centralized menu:
+- Navigate to **Silver Assist** → **NextJS GraphQL Hooks**
+
+#### Standalone Mode (Fallback)
+When Settings Hub is not available, the admin panel appears as:
+- Navigate to **Settings** → **NextJS GraphQL**
+
+### Admin Panel Features
+
+1. **Plugin Status**
+   - Current version display
+   - WPGraphQL dependency status (with installation link if missing)
+   - Elementor integration status (with installation instructions)
+
+2. **Available GraphQL Queries**
+   - Complete list of GraphQL fields provided by the plugin
+   - Example queries with syntax highlighting
+   - Click-to-copy functionality for all code examples
+
+3. **Extensibility Documentation**
+   - Filter hooks documentation
+   - PHP code examples for extending the plugin
+   - Copy-to-clipboard for easy implementation
+
+4. **Quick Links**
+   - GitHub repository
+   - Plugin documentation
+   - WPGraphQL documentation
+
+5. **Update Checking**
+   - One-click "Check Updates" button (in Settings Hub mode)
+   - WordPress-style notifications
+   - Auto-redirect to plugins page when update available
+
+### Using the Admin Panel
+
+**Check for Updates:**
+1. Navigate to the admin panel
+2. Click "Check Updates" button (when using Settings Hub)
+3. Plugin will check GitHub for new releases
+4. Auto-redirects to plugins page if update is available
+
+**Copy Code Examples:**
+1. Click any code block in the admin panel
+2. Code is automatically copied to clipboard
+3. Notification confirms successful copy
+
+**Check Plugin Status:**
+- Green badge ✅ = Plugin/dependency is active
+- Gray badge ❌ = Plugin/dependency is inactive (with install link)
 
 ## Default GraphQL Queries
 

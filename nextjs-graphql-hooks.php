@@ -3,7 +3,7 @@
  * Plugin Name: NextJS GraphQL Hooks
  * Plugin URI: https://github.com/SilverAssist/nextjs-graphql-hooks
  * Description: Creates default GraphQL queries for NextJS sites with extensible type registration through filters.
- * Version: 1.0.3
+ * Version: 1.0.4
  * Author: Silver Assist
  * Author URI: http://silverassist.com/
  * Text Domain: nextjs-graphql-hooks
@@ -18,7 +18,7 @@
  *
  * @package NextJSGraphQLHooks
  * @since 1.0.0
- * @version 1.0.3
+ * @version 1.0.4
  * @author Silver Assist
  */
 
@@ -34,7 +34,7 @@ if (file_exists($autoload_file)) {
 }
 
 // Define plugin constants
-define("NEXTJS_GRAPHQL_HOOKS_VERSION", "1.0.3");
+define("NEXTJS_GRAPHQL_HOOKS_VERSION", "1.0.4");
 define("NEXTJS_GRAPHQL_HOOKS_PLUGIN_DIR", plugin_dir_path(__FILE__));
 define("NEXTJS_GRAPHQL_HOOKS_PLUGIN_URL", plugin_dir_url(__FILE__));
 define("NEXTJS_GRAPHQL_HOOKS_PLUGIN_FILE", __FILE__);
@@ -87,6 +87,9 @@ class NextJS_GraphQL_Hooks
 
 		// Initialize GraphQL hooks when WPGraphQL is available
 		\add_action("init", [$this, "init_graphql_hooks"], 15);
+
+		// Initialize admin panel
+		\add_action("admin_init", [$this, "init_admin_panel"]);
 	}
 
 	/**
@@ -101,6 +104,9 @@ class NextJS_GraphQL_Hooks
 
 		// Include the updater class
 		require_once NEXTJS_GRAPHQL_HOOKS_PLUGIN_DIR . "includes/Updater.php";
+
+		// Include the admin panel class
+		require_once NEXTJS_GRAPHQL_HOOKS_PLUGIN_DIR . "includes/AdminPanel.php";
 	}
 
 	/**
@@ -132,6 +138,18 @@ class NextJS_GraphQL_Hooks
 	{
 		if (class_exists("WPGraphQL")) {
 			GraphQL_Hooks::get_instance();
+		}
+	}
+
+	/**
+	 * Initialize admin panel
+	 *
+	 * @return void
+	 */
+	public function init_admin_panel(): void
+	{
+		if (\is_admin()) {
+			AdminPanel::get_instance();
 		}
 	}
 

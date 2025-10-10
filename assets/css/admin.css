@@ -1,0 +1,284 @@
+/**
+ * Admin styles for NextJS GraphQL Hooks
+ *
+ * @package NextJSGraphQLHooks
+ * @since 1.0.4
+ */
+
+/* Root Variables */
+:root {
+    --nextjs-primary-blue: #0073aa;
+    --nextjs-success: #46b450;
+    --nextjs-error: #dc3232;
+    --nextjs-warning: #ffb900;
+    --nextjs-spacing-sm: 8px;
+    --nextjs-spacing-md: 15px;
+    --nextjs-spacing-lg: 20px;
+    --nextjs-font-size-base: 14px;
+    --nextjs-font-size-lg: 16px;
+}
+
+/* Main Admin Wrapper */
+.nextjs-graphql-hooks-admin {
+    max-width: 1200px;
+}
+
+.nextjs-graphql-hooks-content {
+    margin-top: var(--nextjs-spacing-lg);
+}
+
+/* Card Styles */
+.nextjs-graphql-hooks-admin .card {
+    padding: var(--nextjs-spacing-lg);
+    margin-bottom: var(--nextjs-spacing-lg);
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.nextjs-graphql-hooks-admin .card h2 {
+    margin-top: 0;
+    padding-bottom: var(--nextjs-spacing-md);
+    border-bottom: 1px solid #e5e5e5;
+    font-size: 18px;
+}
+
+.nextjs-graphql-hooks-admin .card h3 {
+    margin-top: var(--nextjs-spacing-lg);
+    font-size: var(--nextjs-font-size-lg);
+}
+
+.nextjs-graphql-hooks-admin .card h4 {
+    margin-top: var(--nextjs-spacing-md);
+    font-size: var(--nextjs-font-size-base);
+    font-weight: 600;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.status-badge .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+}
+
+.status-badge.status-active {
+    background: #d7f8db;
+    color: #1e8635;
+}
+
+.status-badge.status-inactive {
+    background: #f0f0f1;
+    color: #646970;
+}
+
+/* Form Table Overrides */
+.nextjs-graphql-hooks-admin .form-table th {
+    width: 200px;
+    font-weight: 600;
+}
+
+.nextjs-graphql-hooks-admin .form-table code {
+    background: #f0f0f1;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+/* Query List */
+.query-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--nextjs-spacing-md) 0;
+}
+
+.query-list li {
+    padding: var(--nextjs-spacing-sm) 0;
+    border-bottom: 1px solid #f0f0f1;
+}
+
+.query-list li:last-child {
+    border-bottom: none;
+}
+
+.query-list code {
+    display: inline-block;
+    min-width: 200px;
+    background: #f0f0f1;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--nextjs-primary-blue);
+}
+
+.query-description {
+    color: #646970;
+    font-size: 13px;
+    margin-left: var(--nextjs-spacing-sm);
+}
+
+/* Query Example Box */
+.query-example,
+.filter-example {
+    background: #f9f9f9;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    padding: var(--nextjs-spacing-md);
+    margin-top: var(--nextjs-spacing-md);
+}
+
+.query-example pre,
+.filter-example pre {
+    background: #2c3338;
+    color: #f0f0f1;
+    padding: var(--nextjs-spacing-md);
+    border-radius: 3px;
+    overflow-x: auto;
+    margin: var(--nextjs-spacing-sm) 0 0;
+}
+
+.query-example code,
+.filter-example code {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* Filter List */
+.filter-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--nextjs-spacing-md) 0;
+}
+
+.filter-list li {
+    padding: var(--nextjs-spacing-sm) 0;
+    border-bottom: 1px solid #f0f0f1;
+}
+
+.filter-list li:last-child {
+    border-bottom: none;
+}
+
+.filter-list code {
+    display: inline-block;
+    min-width: 350px;
+    background: #f0f0f1;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #d63638;
+}
+
+.filter-description {
+    color: #646970;
+    font-size: 13px;
+    margin-left: var(--nextjs-spacing-sm);
+}
+
+/* Documentation Links */
+.documentation-links {
+    list-style: none;
+    padding: 0;
+    margin: var(--nextjs-spacing-md) 0;
+}
+
+.documentation-links li {
+    margin-bottom: var(--nextjs-spacing-sm);
+}
+
+.documentation-links a {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    font-size: var(--nextjs-font-size-base);
+    color: var(--nextjs-primary-blue);
+}
+
+.documentation-links a:hover {
+    color: #005177;
+}
+
+.documentation-links .dashicons {
+    margin-right: 5px;
+}
+
+/* Admin Notices */
+.notice.nextjs-graphql-hooks-notice {
+    border-left-width: 4px;
+    padding: var(--nextjs-spacing-md);
+    margin-top: var(--nextjs-spacing-lg);
+    position: relative;
+}
+
+.notice.nextjs-graphql-hooks-notice p {
+    margin: 0.5em 0;
+}
+
+.notice.nextjs-graphql-hooks-notice strong {
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 782px) {
+    .nextjs-graphql-hooks-admin .form-table th {
+        width: auto;
+        padding-bottom: 0;
+    }
+
+    .query-list code,
+    .filter-list code {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .query-description,
+    .filter-description {
+        display: block;
+        margin-left: 0;
+        margin-top: 5px;
+    }
+}
+
+/* Loading State */
+.nextjs-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Update Button States */
+.button.checking-updates {
+    position: relative;
+    padding-left: 30px;
+}
+
+.button.checking-updates::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    border: 2px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: translateY(-50%) rotate(360deg);
+    }
+}

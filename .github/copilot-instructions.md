@@ -1,5 +1,19 @@
 # Copilot Instructions for NextJS GraphQL Hooks Plugin
 
+## CRITICAL DOCUMENTATION RULE
+
+**⚠️ NEVER CREATE ADDITIONAL MARKDOWN FILES**
+
+All documentation MUST be centralized in:
+1. **README.md** - User-facing documentation, installation, usage, examples
+2. **This file (.github/copilot-instructions.md)** - Technical documentation, coding standards, architecture
+
+When implementing new features:
+- ✅ Update README.md with user-facing documentation
+- ✅ Update copilot-instructions.md with technical details
+- ❌ DO NOT create separate MD files (SETTINGS_HUB_INTEGRATION.md, ADMIN_PANEL_GUIDE.md, etc.)
+- ❌ DO NOT create documentation in assets/ or other directories
+
 ## Plugin Overview
 
 NextJS GraphQL Hooks is a WordPress plugin that provides essential GraphQL queries for NextJS sites using WordPress as a headless CMS. The plugin is built with modern PHP 8.0+ features, follows WordPress coding standards, and uses a singleton pattern for efficient resource management.
@@ -12,7 +26,7 @@ NextJS GraphQL Hooks is a WordPress plugin that provides essential GraphQL queri
    - Singleton pattern implementation
    - Handles plugin initialization and dependency checks
    - Manages WPGraphQL dependency validation
-   - Initializes auto-updater and GraphQL hooks
+   - Initializes auto-updater, GraphQL hooks, and admin panel
    - Located in: `nextjs-graphql-hooks.php`
 
 2. **GraphQL Hooks Class**: `NextJSGraphQLHooks\GraphQL_Hooks`
@@ -22,7 +36,15 @@ NextJS GraphQL Hooks is a WordPress plugin that provides essential GraphQL queri
    - Handles Elementor integration with error handling
    - Located in: `includes/GraphQL_Hooks.php`
 
-3. **Auto-Update System**: `NextJSGraphQLHooks\Updater`
+3. **Admin Panel Class**: `NextJSGraphQLHooks\AdminPanel`
+   - Singleton pattern implementation
+   - Settings Hub integration with graceful fallback
+   - Comprehensive admin interface with status display
+   - Update checking functionality
+   - AJAX handlers for admin features
+   - Located in: `includes/AdminPanel.php`
+
+4. **Auto-Update System**: `NextJSGraphQLHooks\Updater`
    - Handles automatic updates from GitHub releases
    - Integrates with WordPress update notifications
    - Manages version checking and plugin info display
@@ -33,6 +55,9 @@ NextJS GraphQL Hooks is a WordPress plugin that provides essential GraphQL queri
 - **Default Page Fields**: Automatically adds `elementorContent` and `elementorCSSFile` fields to Page queries
 - **Elementor Integration**: Provides `elementorLibraryKit` root query for global Elementor styles
 - **Extensible Filter System**: Three filter hooks for custom types, queries, and fields
+- **Admin Interface**: Comprehensive settings page with plugin status, GraphQL documentation, and examples
+- **Settings Hub Integration**: Centralized admin menu under "Silver Assist" (with graceful fallback)
+- **Update Checking**: One-click update check from admin panel with WordPress notifications
 - **Auto-Updates**: Automatic plugin updates from GitHub releases with WordPress admin integration
 - **GitHub Workflows**: CI/CD pipeline with quality checks, size monitoring, and automated releases
 - **Error Handling**: Comprehensive error logging and graceful fallbacks for missing dependencies
@@ -121,8 +146,106 @@ nextjs-graphql-hooks/
 ├── nextjs-graphql-hooks.php          # Main plugin file
 ├── includes/
 │   ├── GraphQL_Hooks.php             # Core GraphQL functionality
+│   ├── AdminPanel.php                # Admin interface & Settings Hub integration
 │   └── Updater.php                   # Auto-update system
+├── assets/
+│   ├── css/
+│   │   └── admin.css                 # Admin panel styles
+│   └── js/
+│       ├── admin.js                  # Admin panel functionality
+│       └── update-check.js           # Update checking
 ├── .github/
+│   ├── copilot-instructions.md       # This file - Copilot guidelines
+│   └── workflows/
+│       ├── quality-checks.yml        # CI/CD quality checks
+│       ├── check-size.yml            # Package size monitoring
+│       └── release.yml               # Automated releases
+├── scripts/
+│   ├── check-versions.sh             # Version consistency verification
+│   ├── create-release-zip.sh         # Release package creation
+│   ├── update-version-simple.sh      # Simple version update (Perl-based)
+│   └── README.md                     # Scripts documentation
+├── vendor/                           # Composer dependencies (auto-generated)
+│   ├── autoload.php                  # Composer autoloader
+│   ├── composer/                     # Composer metadata
+│   ├── silverassist/
+│   │   ├── wp-github-updater/        # GitHub updater package
+│   │   └── wp-settings-hub/          # Settings Hub integration
+│   └── ...                           # Other dependencies
+├── .gitattributes                    # Git export control for releases
+├── composer.json                     # Composer configuration
+├── .phpcs.xml.dist                   # PHP CodeSniffer configuration
+├── CHANGELOG.md                      # Version history
+├── LICENSE                           # Polyform Noncommercial license
+└── README.md                         # Plugin documentation
+```
+
+## Settings Hub Integration
+
+### Overview
+
+The plugin integrates with `silverassist/wp-settings-hub` v1.1.1+ to provide a centralized admin menu under "Silver Assist". When Settings Hub is unavailable, it gracefully falls back to a standalone settings page.
+
+### Critical Implementation Details
+
+#### 1. Hook Priority
+```php
+// MUST use priority 4 to register before Settings Hub (priority 5)
+\add_action("admin_menu", [$this, "register_with_hub"], 4);
+```
+
+#### 2. Capability Parameter
+```php
+// REQUIRED in Settings Hub v1.1.1+
+$hub->register_plugin(
+    "nextjs-graphql-hooks",
+    \__("NextJS GraphQL Hooks", "nextjs-graphql-hooks"),
+    [$this, "render_admin_page"],
+    [
+        "capability" => "manage_options",  // ✅ CRITICAL
+        "version" => NEXTJS_GRAPHQL_HOOKS_VERSION,
+        "actions" => $this->get_hub_actions()
+    ]
+);
+```
+
+#### 3. Multiple Hook Suffixes
+```php
+// Support all contexts for asset loading
+$allowed_hooks = [
+    "settings_page_nextjs-graphql-hooks",        // Standalone fallback
+    "silver-assist_page_nextjs-graphql-hooks",   // Settings Hub submenu
+    "toplevel_page_nextjs-graphql-hooks"         # Direct top-level
+];
+```
+
+#### 4. Echo vs Return for Actions
+```php
+// ⚠️ CRITICAL: Echo JavaScript, don't return it
+public function render_update_check_script(string $plugin_slug = ""): void
+{
+    // ... enqueue scripts ...
+    echo "nextjsGraphQLHooksCheckUpdates(); return false;";
+}
+```
+
+### Admin Panel Features
+
+- **Plugin Status**: Display version, WPGraphQL status, Elementor status
+- **GraphQL Queries**: Documentation of available fields and queries with examples
+- **Extensibility**: Filter hooks documentation with code examples
+- **Documentation Links**: GitHub, README, WPGraphQL docs
+- **Update Checking**: One-click update check with AJAX
+- **Copy-to-Clipboard**: Interactive code examples
+- **WordPress Notices**: Admin notifications with auto-dismiss
+- **Responsive Design**: Mobile-friendly interface
+
+### Common Integration Errors (Prevented)
+
+1. **Submenu Not Appearing**: Fixed by using priority 4
+2. **403 Access Denied**: Fixed by explicit capability parameter
+3. **Assets Not Loading**: Fixed by checking multiple hook suffixes
+4. **Update Button Not Working**: Fixed by echoing JavaScript instead of returning
 │   ├── copilot-instructions.md       # This file - Copilot guidelines
 │   └── workflows/
 │       ├── quality-checks.yml        # CI/CD quality checks
