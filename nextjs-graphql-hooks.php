@@ -48,6 +48,7 @@ class NextJS_GraphQL_Hooks
 
 	private string $plugin_path;
 	private string $plugin_url;
+	private ?Updater $updater = null;
 
 	/**
 	 * Get singleton instance
@@ -88,8 +89,8 @@ class NextJS_GraphQL_Hooks
 		// Initialize GraphQL hooks when WPGraphQL is available
 		\add_action("init", [$this, "init_graphql_hooks"], 15);
 
-		// Initialize admin panel
-		\add_action("admin_init", [$this, "init_admin_panel"]);
+		// Initialize admin panel (must run before admin_menu so Settings Hub registration works)
+		\add_action("init", [$this, "init_admin_panel"]);
 	}
 
 	/**
@@ -123,7 +124,7 @@ class NextJS_GraphQL_Hooks
 		}
 
 		// Initialize auto-updater
-		new Updater(__FILE__, "SilverAssist/nextjs-graphql-hooks");
+		$this->updater = new Updater(__FILE__, "SilverAssist/nextjs-graphql-hooks");
 
 		// Plugin is ready
 		\do_action("nextjs_graphql_hooks_loaded");
@@ -200,6 +201,16 @@ class NextJS_GraphQL_Hooks
 	public function get_plugin_url(): string
 	{
 		return $this->plugin_url;
+	}
+
+	/**
+	 * Get updater instance
+	 *
+	 * @return Updater|null
+	 */
+	public function get_updater(): ?Updater
+	{
+		return $this->updater;
 	}
 }
 

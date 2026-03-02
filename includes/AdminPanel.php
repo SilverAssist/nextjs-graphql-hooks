@@ -63,7 +63,6 @@ class AdminPanel
 		// CRITICAL: Use priority 4 to register before Settings Hub (priority 5)
 		\add_action("admin_menu", [$this, "register_with_hub"], 4);
 		\add_action("admin_enqueue_scripts", [$this, "enqueue_admin_scripts"]);
-		\add_action("wp_ajax_nextjs_graphql_hooks_check_updates", [$this, "ajax_check_updates"]);
 	}
 
 	/**
@@ -93,8 +92,9 @@ class AdminPanel
 				[
 					"description" => \__("GraphQL hooks for NextJS integration with Elementor support", "nextjs-graphql-hooks"),
 					"version" => NEXTJS_GRAPHQL_HOOKS_VERSION,
-					"tab_title" => \__("Settings", "nextjs-graphql-hooks"),
+					"tab_title" => \__("GraphQL Hooks", "nextjs-graphql-hooks"),
 					"capability" => "manage_options",
+					"plugin_file" => NEXTJS_GRAPHQL_HOOKS_PLUGIN_FILE,
 					"actions" => $this->get_hub_actions()
 				]
 			);
@@ -129,14 +129,19 @@ class AdminPanel
 	 */
 	private function get_hub_actions(): array
 	{
-		return [
-			[
+		$actions = [];
+
+		$main = NextJS_GraphQL_Hooks::get_instance();
+		if ($main->get_updater()) {
+			$actions[] = [
 				"id" => "check_updates",
 				"label" => \__("Check Updates", "nextjs-graphql-hooks"),
 				"callback" => [$this, "render_update_check_script"],
-				"class" => "button button-secondary"
-			]
-		];
+				"class" => "button"
+			];
+		}
+
+		return $actions;
 	}
 
 	/**
@@ -155,31 +160,40 @@ class AdminPanel
 		// Display admin page
 		?>
 		<div class="wrap nextjs-graphql-hooks-admin">
-			<h1><?php echo \esc_html__("NextJS GraphQL Hooks", "nextjs-graphql-hooks"); ?></h1>
 
 			<div class="nextjs-graphql-hooks-content">
-				<!-- Plugin Status -->
-				<div class="card">
-					<h2><?php echo \esc_html__("Plugin Status", "nextjs-graphql-hooks"); ?></h2>
-					<?php $this->render_status_section(); ?>
-				</div>
 
 				<!-- GraphQL Queries -->
-				<div class="card">
-					<h2><?php echo \esc_html__("Available GraphQL Queries", "nextjs-graphql-hooks"); ?></h2>
-					<?php $this->render_queries_section(); ?>
+				<div class="status-card">
+					<div class="card-header">
+						<span class="dashicons dashicons-editor-code"></span>
+						<h3><?php echo \esc_html__("Available GraphQL Queries", "nextjs-graphql-hooks"); ?></h3>
+					</div>
+					<div class="card-content">
+						<?php $this->render_queries_section(); ?>
+					</div>
 				</div>
 
 				<!-- Filter System -->
-				<div class="card">
-					<h2><?php echo \esc_html__("Extensibility", "nextjs-graphql-hooks"); ?></h2>
-					<?php $this->render_filters_section(); ?>
+				<div class="status-card">
+					<div class="card-header">
+						<span class="dashicons dashicons-admin-generic"></span>
+						<h3><?php echo \esc_html__("Extensibility", "nextjs-graphql-hooks"); ?></h3>
+					</div>
+					<div class="card-content">
+						<?php $this->render_filters_section(); ?>
+					</div>
 				</div>
 
 				<!-- Documentation -->
-				<div class="card">
-					<h2><?php echo \esc_html__("Documentation", "nextjs-graphql-hooks"); ?></h2>
-					<?php $this->render_documentation_section(); ?>
+				<div class="status-card">
+					<div class="card-header">
+						<span class="dashicons dashicons-media-document"></span>
+						<h3><?php echo \esc_html__("Documentation", "nextjs-graphql-hooks"); ?></h3>
+					</div>
+					<div class="card-content">
+						<?php $this->render_documentation_section(); ?>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -200,20 +214,14 @@ class AdminPanel
 		?>
 		<table class="form-table">
 			<tr>
-				<th scope="row"><?php echo \esc_html__("Plugin Version", "nextjs-graphql-hooks"); ?></th>
-				<td><code><?php echo \esc_html(NEXTJS_GRAPHQL_HOOKS_VERSION); ?></code></td>
-			</tr>
-			<tr>
 				<th scope="row"><?php echo \esc_html__("WPGraphQL", "nextjs-graphql-hooks"); ?></th>
 				<td>
 					<?php if ($wpgraphql_active): ?>
-						<span class="status-badge status-active">
-							<span class="dashicons dashicons-yes"></span>
+						<span class="status-indicator active">
 							<?php echo \esc_html__("Active", "nextjs-graphql-hooks"); ?>
 						</span>
 					<?php else: ?>
-						<span class="status-badge status-inactive">
-							<span class="dashicons dashicons-no"></span>
+						<span class="status-indicator inactive">
 							<?php echo \esc_html__("Inactive", "nextjs-graphql-hooks"); ?>
 						</span>
 						<p class="description">
@@ -232,16 +240,14 @@ class AdminPanel
 				<th scope="row"><?php echo \esc_html__("Elementor", "nextjs-graphql-hooks"); ?></th>
 				<td>
 					<?php if ($elementor_active): ?>
-						<span class="status-badge status-active">
-							<span class="dashicons dashicons-yes"></span>
+						<span class="status-indicator active">
 							<?php echo \esc_html__("Active", "nextjs-graphql-hooks"); ?>
 						</span>
 						<p class="description">
 							<?php echo \esc_html__("Elementor content fields are available", "nextjs-graphql-hooks"); ?>
 						</p>
 					<?php else: ?>
-						<span class="status-badge status-inactive">
-							<span class="dashicons dashicons-no"></span>
+						<span class="status-indicator inactive">
 							<?php echo \esc_html__("Inactive", "nextjs-graphql-hooks"); ?>
 						</span>
 						<p class="description">
@@ -427,98 +433,25 @@ class AdminPanel
 
 	/**
 	 * Render update check button script
-	 * ⚠️ CRITICAL: Must echo JavaScript, not return it
 	 *
-	 * @since 1.0.4
+	 * Delegates to wp-github-updater's built-in enqueueCheckUpdatesScript() which
+	 * provides centralized JS, AJAX handling, admin notices, and auto-redirect.
+	 *
+	 * @since 1.0.5
 	 * @param string $plugin_slug Plugin slug (passed by Settings Hub)
 	 * @return void
 	 */
 	public function render_update_check_script(string $plugin_slug = ""): void
 	{
-		// Enqueue update check script
-		\wp_enqueue_script(
-			"nextjs-graphql-hooks-update-check",
-			NEXTJS_GRAPHQL_HOOKS_PLUGIN_URL . "assets/js/update-check.js",
-			["jquery"],
-			NEXTJS_GRAPHQL_HOOKS_VERSION,
-			true
-		);
+		$main = NextJS_GraphQL_Hooks::get_instance();
+		$updater = $main->get_updater();
 
-		// Localize with update data
-		\wp_localize_script("nextjs-graphql-hooks-update-check", "nextjsGraphQLHooksUpdateData", [
-			"ajaxurl" => \admin_url("admin-ajax.php"),
-			"nonce" => \wp_create_nonce("nextjs_graphql_hooks_check_updates"),
-			"updateUrl" => \admin_url("plugins.php"),
-			"strings" => [
-				"checking" => \__("Checking for updates...", "nextjs-graphql-hooks"),
-				"available" => \__("Update available! Redirecting...", "nextjs-graphql-hooks"),
-				"upToDate" => \__("Plugin is up to date!", "nextjs-graphql-hooks"),
-				"error" => \__("Error checking for updates", "nextjs-graphql-hooks")
-			]
-		]);
-
-		// ⚠️ CRITICAL: Echo JavaScript code (Settings Hub expects echo, not return)
-		echo "nextjsGraphQLHooksCheckUpdates(); return false;";
-	}
-
-	/**
-	 * AJAX handler for update checking
-	 *
-	 * @since 1.0.4
-	 * @return void
-	 */
-	public function ajax_check_updates(): void
-	{
-		// Verify nonce
-		if (!\check_ajax_referer("nextjs_graphql_hooks_check_updates", "nonce", false)) {
-			\wp_send_json_error([
-				"message" => \__("Security check failed", "nextjs-graphql-hooks")
-			]);
+		if (!$updater) {
 			return;
 		}
 
-		// Verify user capability
-		if (!\current_user_can("manage_options")) {
-			\wp_send_json_error([
-				"message" => \__("Insufficient permissions", "nextjs-graphql-hooks")
-			]);
-			return;
-		}
-
-		try {
-			// Force update check
-			\wp_clean_plugins_cache();
-			\wp_update_plugins();
-
-			// Get plugin update information
-			$update_plugins = \get_site_transient("update_plugins");
-			$plugin_file = plugin_basename(NEXTJS_GRAPHQL_HOOKS_PLUGIN_FILE);
-
-			// Check if update is available
-			$update_available = isset($update_plugins->response[$plugin_file]);
-
-			if ($update_available) {
-				$update_data = $update_plugins->response[$plugin_file];
-				\wp_send_json_success([
-					"update_available" => true,
-					"new_version" => $update_data->new_version ?? "unknown",
-					"message" => \sprintf(
-						\__("New version %s available!", "nextjs-graphql-hooks"),
-						$update_data->new_version ?? ""
-					)
-				]);
-			} else {
-				\wp_send_json_success([
-					"update_available" => false,
-					"message" => \__("Plugin is up to date", "nextjs-graphql-hooks")
-				]);
-			}
-		} catch (\Exception $e) {
-			\error_log("NextJS GraphQL Hooks - Update check error: " . $e->getMessage());
-			\wp_send_json_error([
-				"message" => \__("Error checking for updates", "nextjs-graphql-hooks")
-			]);
-		}
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inline JavaScript from wp-github-updater
+		echo $updater->enqueueCheckUpdatesScript();
 	}
 
 	/**

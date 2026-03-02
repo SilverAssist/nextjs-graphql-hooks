@@ -1,21 +1,62 @@
 /**
  * Admin styles for NextJS GraphQL Hooks
  *
+ * Card-based design system for the plugin admin interface.
+ *
  * @package NextJSGraphQLHooks
  * @since 1.0.4
+ * @version 1.0.5
  */
 
 /* Root Variables */
 :root {
-    --nextjs-primary-blue: #0073aa;
-    --nextjs-success: #46b450;
-    --nextjs-error: #dc3232;
-    --nextjs-warning: #ffb900;
-    --nextjs-spacing-sm: 8px;
-    --nextjs-spacing-md: 15px;
-    --nextjs-spacing-lg: 20px;
-    --nextjs-font-size-base: 14px;
-    --nextjs-font-size-lg: 16px;
+    --nextjs-color-primary: #0073aa;
+    --nextjs-color-primary-hover: #005177;
+    --nextjs-color-success: #28a745;
+    --nextjs-color-success-bg: #d4edda;
+    --nextjs-color-success-text: #155724;
+    --nextjs-color-success-border: #c3e6cb;
+    --nextjs-color-error: #dc3232;
+    --nextjs-color-error-bg: #f8d7da;
+    --nextjs-color-error-text: #721c24;
+    --nextjs-color-error-border: #f5c6cb;
+    --nextjs-color-warning: #ffb900;
+    --nextjs-color-warning-bg: #fff3cd;
+    --nextjs-color-warning-text: #856404;
+    --nextjs-color-warning-border: #ffeaa7;
+    --nextjs-color-text: #1d2327;
+    --nextjs-color-text-secondary: #50575e;
+    --nextjs-color-muted: #646970;
+    --nextjs-color-border: #c3c4c7;
+    --nextjs-color-border-light: #e0e0e0;
+    --nextjs-color-border-lightest: #f0f0f0;
+    --nextjs-color-bg: #f6f7f7;
+    --nextjs-color-bg-secondary: #f0f0f1;
+    --nextjs-color-white: #fff;
+    --nextjs-radius-sm: 3px;
+    --nextjs-radius: 8px;
+    --nextjs-radius-pill: 20px;
+    --nextjs-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --nextjs-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
+    --nextjs-spacing-xs: 2px;
+    --nextjs-spacing-sm: 4px;
+    --nextjs-spacing-md: 8px;
+    --nextjs-spacing-lg: 12px;
+    --nextjs-spacing-xl: 16px;
+    --nextjs-spacing-2xl: 20px;
+    --nextjs-spacing-3xl: 24px;
+    --nextjs-font-size-xs: 11px;
+    --nextjs-font-size-sm: 12px;
+    --nextjs-font-size-base: 13px;
+    --nextjs-font-size-lg: 14px;
+    --nextjs-font-size-xl: 16px;
+    --nextjs-font-size-2xl: 18px;
+    --nextjs-font-weight-medium: 500;
+    --nextjs-font-weight-semibold: 600;
+    --nextjs-font-weight-bold: 700;
+    --nextjs-letter-spacing-tight: 0.3px;
+    --nextjs-transition-fast: 0.2s;
+    --nextjs-fluid-spacing: clamp(1rem, 2.5vw, 1.5rem);
 }
 
 /* Main Admin Wrapper */
@@ -24,61 +65,97 @@
 }
 
 .nextjs-graphql-hooks-content {
+    display: grid;
+    gap: var(--nextjs-spacing-lg);
     margin-top: var(--nextjs-spacing-lg);
 }
 
-/* Card Styles */
-.nextjs-graphql-hooks-admin .card {
-    padding: var(--nextjs-spacing-lg);
-    margin-bottom: var(--nextjs-spacing-lg);
-    background: #fff;
-    border: 1px solid #ccd0d4;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+/* Card Base */
+.nextjs-graphql-hooks-admin .status-card {
+    background: var(--nextjs-color-white);
+    border: 1px solid var(--nextjs-color-border);
+    border-radius: var(--nextjs-radius);
+    padding: var(--nextjs-fluid-spacing);
+    box-shadow: var(--nextjs-shadow);
+    transition: box-shadow var(--nextjs-transition-fast);
 }
 
-.nextjs-graphql-hooks-admin .card h2 {
-    margin-top: 0;
-    padding-bottom: var(--nextjs-spacing-md);
-    border-bottom: 1px solid #e5e5e5;
-    font-size: 18px;
+.nextjs-graphql-hooks-admin .status-card:hover {
+    box-shadow: var(--nextjs-shadow-hover);
 }
 
-.nextjs-graphql-hooks-admin .card h3 {
-    margin-top: var(--nextjs-spacing-lg);
-    font-size: var(--nextjs-font-size-lg);
-}
-
-.nextjs-graphql-hooks-admin .card h4 {
-    margin-top: var(--nextjs-spacing-md);
-    font-size: var(--nextjs-font-size-base);
-    font-weight: 600;
-}
-
-/* Status Badges */
-.status-badge {
-    display: inline-flex;
+/* Card Header */
+.nextjs-graphql-hooks-admin .card-header {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    padding: 4px 10px;
-    border-radius: 3px;
-    font-size: 13px;
-    font-weight: 500;
+    gap: var(--nextjs-spacing-md);
+    margin: 0 0 var(--nextjs-spacing-lg);
+    padding: 0 0 var(--nextjs-spacing-md);
+    border-bottom: 1px solid var(--nextjs-color-border-light);
 }
 
-.status-badge .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    margin-right: 5px;
+.nextjs-graphql-hooks-admin .card-header .dashicons {
+    color: var(--nextjs-color-primary);
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
 }
 
-.status-badge.status-active {
-    background: #d7f8db;
-    color: #1e8635;
+.nextjs-graphql-hooks-admin .card-header h3 {
+    margin: 0;
+    font-size: var(--nextjs-font-size-xl);
+    font-weight: var(--nextjs-font-weight-semibold);
+    line-height: 1.3;
+    flex: 1;
 }
 
-.status-badge.status-inactive {
-    background: #f0f0f1;
-    color: #646970;
+/* Card Content */
+.nextjs-graphql-hooks-admin .card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nextjs-spacing-md);
+}
+
+/* Card Content Typography */
+.nextjs-graphql-hooks-admin .card-content > h3 {
+    margin-top: var(--nextjs-spacing-xl);
+    font-size: var(--nextjs-font-size-xl);
+    font-weight: var(--nextjs-font-weight-semibold);
+}
+
+.nextjs-graphql-hooks-admin .card-content > h3:first-child {
+    margin-top: 0;
+}
+
+.nextjs-graphql-hooks-admin .card-content h4 {
+    margin-top: var(--nextjs-spacing-md);
+    font-size: var(--nextjs-font-size-lg);
+    font-weight: var(--nextjs-font-weight-semibold);
+}
+
+/* Status Indicators */
+.nextjs-graphql-hooks-admin .status-indicator {
+    display: inline-block;
+    padding: var(--nextjs-spacing-xs) var(--nextjs-spacing-md);
+    border-radius: var(--nextjs-radius-pill);
+    font-size: var(--nextjs-font-size-xs);
+    font-weight: var(--nextjs-font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--nextjs-letter-spacing-tight);
+    white-space: nowrap;
+}
+
+.nextjs-graphql-hooks-admin .status-indicator.active {
+    background: var(--nextjs-color-success-bg);
+    color: var(--nextjs-color-success-text);
+    border: 1px solid var(--nextjs-color-success-border);
+}
+
+.nextjs-graphql-hooks-admin .status-indicator.inactive {
+    background: var(--nextjs-color-error-bg);
+    color: var(--nextjs-color-error-text);
+    border: 1px solid var(--nextjs-color-error-border);
 }
 
 /* Form Table Overrides */
@@ -118,11 +195,11 @@
     border-radius: 3px;
     font-size: 13px;
     font-weight: 600;
-    color: var(--nextjs-primary-blue);
+    color: var(--nextjs-color-primary);
 }
 
 .query-description {
-    color: #646970;
+    color: var(--nextjs-color-muted);
     font-size: 13px;
     margin-left: var(--nextjs-spacing-sm);
 }
@@ -182,7 +259,7 @@
 }
 
 .filter-description {
-    color: #646970;
+    color: var(--nextjs-color-muted);
     font-size: 13px;
     margin-left: var(--nextjs-spacing-sm);
 }
@@ -203,7 +280,7 @@
     align-items: center;
     text-decoration: none;
     font-size: var(--nextjs-font-size-base);
-    color: var(--nextjs-primary-blue);
+    color: var(--nextjs-color-primary);
 }
 
 .documentation-links a:hover {
@@ -232,6 +309,18 @@
 
 /* Responsive Design */
 @media screen and (max-width: 782px) {
+    .nextjs-graphql-hooks-content {
+        grid-template-columns: 1fr;
+    }
+
+    .nextjs-graphql-hooks-admin .status-card {
+        padding: var(--nextjs-spacing-xl);
+    }
+
+    .nextjs-graphql-hooks-admin .card-header h3 {
+        font-size: var(--nextjs-font-size-lg);
+    }
+
     .nextjs-graphql-hooks-admin .form-table th {
         width: auto;
         padding-bottom: 0;
