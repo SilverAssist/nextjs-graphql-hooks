@@ -198,7 +198,7 @@ jobs:
                   EOF
 
             - name: Create GitHub Release
-              uses: softprops/action-gh-release@975c1b265559de767db1e5d9a35eb5f1a6bb69a8 # v2.2.0
+              uses: softprops/action-gh-release@7b4da11513bf3f43f9999e90eabced41ab8bb048 # v2.2.0
               with:
                   tag_name: ${{ steps.version.outputs.tag }}
                   name: "NextJS GraphQL Hooks v${{ steps.version.outputs.version }}"
