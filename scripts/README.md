@@ -77,7 +77,7 @@ The system automatically updates the version in:
 
 ### Package Creation
 - ✅ Includes only necessary files for distribution
-- ✅ Names ZIP with version: `nextjs-graphql-hooks-v1.0.1.zip`
+- ✅ Names ZIP with version: `nextjs-graphql-hooks-v1.1.0.zip`
 - ✅ Automatically attaches to GitHub Release
 
 ### Release Notes Generation
@@ -163,10 +163,10 @@ If you need to create a release manually without automation:
 ```bash
 # 1. Update versions manually in files
 # 2. Create package
-mkdir -p dist/nextjs-graphql-hooks-v1.0.1
-rsync -av --exclude='.git*' --exclude='.github/' --exclude='scripts/' --exclude='node_modules/' ./ dist/nextjs-graphql-hooks-v1.0.1/
+mkdir -p dist/nextjs-graphql-hooks-v1.1.0
+rsync -av --exclude='.git*' --exclude='.github/' --exclude='scripts/' --exclude='node_modules/' ./ dist/nextjs-graphql-hooks-v1.1.0/
 cd dist
-zip -r nextjs-graphql-hooks-v1.0.1.zip nextjs-graphql-hooks-v1.0.1/
+zip -r nextjs-graphql-hooks-v1.1.0.zip nextjs-graphql-hooks-v1.1.0/
 
 # 3. Upload manually to GitHub Releases
 ```

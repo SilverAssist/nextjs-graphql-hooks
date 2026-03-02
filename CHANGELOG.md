@@ -5,6 +5,30 @@ All notable changes to the NextJS GraphQL Hooks Plugin will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-03-02
+
+### 🎨 UI Improvements
+- **Admin Dashboard Refactor**: Aligned admin dashboard UI with card-based design system
+  - Modern, consistent visual appearance
+  - Improved user experience
+
+### 🔒 Security
+- **CodeQL Security Scanning**: Added CodeQL workflow for automated security analysis
+- **Immutable GitHub Actions**: Pinned all GitHub Actions to specific commit SHAs for improved supply chain security
+- **Explicit Workflow Permissions**: Added explicit permissions to all GitHub Actions workflows following security best practices
+
+### 🔧 CI/CD Updates
+- **Dependabot Integration**: Added Dependabot configuration for automated dependency updates
+- **GitHub Actions Updates**: 
+  - Updated `actions/checkout` from v4 to v6
+  - Updated `actions/upload-artifact` from v4 to v6
+  - Updated `shivammathur/setup-php` to latest version
+  - Updated `softprops/action-gh-release` from v1 to v2
+
+### 📦 Dependencies
+- **WPCS 3.2**: Upgraded to WordPress Coding Standards 3.2 with required dependencies
+- **Composer Installers**: Updated `composer/installers` requirement from ^1.0 to ^2.3
+
 ## [1.0.4] - 2025-10-10
 
 ### ✨ New Features

@@ -11,7 +11,7 @@
 # @package NextJSGraphQLHooks
 # @since 1.0.0
 # @author Silver Assist
-# @version 1.0.4
+# @version 1.1.0
 ###############################################################################
 
 set -e  # Exit on any error
