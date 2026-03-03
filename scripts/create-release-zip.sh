@@ -194,6 +194,21 @@ fi
 
 echo "  ✅ Main plugin files copied"
 
+# Validate vendor package assets (CSS/JS required at runtime)
+if [ -d "$PLUGIN_DIR/vendor" ]; then
+    echo -e "${YELLOW}📦 Validating vendor package assets...${NC}"
+    if [ ! -f "$PLUGIN_DIR/vendor/silverassist/wp-settings-hub/assets/css/settings-hub.css" ]; then
+        echo -e "${RED}⚠️  Settings Hub CSS asset missing: vendor/silverassist/wp-settings-hub/assets/css/settings-hub.css${NC}"
+    else
+        echo "    ✅ Settings Hub CSS asset included"
+    fi
+    if [ ! -f "$PLUGIN_DIR/vendor/silverassist/wp-github-updater/assets/js/check-updates.js" ]; then
+        echo -e "${RED}⚠️  GitHub updater JS asset missing: vendor/silverassist/wp-github-updater/assets/js/check-updates.js${NC}"
+    else
+        echo "    ✅ GitHub updater JS asset included"
+    fi
+fi
+
 # Create the ZIP file
 echo -e "${YELLOW}🗜️  Creating ZIP archive...${NC}"
 cd "$TEMP_DIR"
