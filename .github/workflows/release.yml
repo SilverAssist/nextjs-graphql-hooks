@@ -28,11 +28,6 @@ jobs:
                   extensions: mbstring, xml, ctype, json, tokenizer
                   coverage: none
 
-            - name: Install Composer dependencies
-              run: |
-                  composer install --no-dev --optimize-autoloader --no-interaction
-                  echo "✅ Composer dependencies installed successfully"
-
             - name: Extract version from tag or input
               id: version
               run: |
@@ -69,6 +64,7 @@ jobs:
                   chmod +x scripts/create-release-zip.sh
 
                   # Use our custom script to create properly structured ZIP
+                  # Note: The script handles composer install internally
                   ./scripts/create-release-zip.sh
 
                   # Calculate package size
