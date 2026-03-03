@@ -89,11 +89,24 @@ if [ -d "vendor" ]; then
     mkdir -p "$PLUGIN_DIR/vendor"
     
     # Copy Composer autoloader and essential files
+    if [ ! -f "vendor/autoload.php" ]; then
+        echo -e "${RED}❌ Error: vendor/autoload.php not found. Run 'composer install' first.${NC}"
+        exit 1
+    fi
     cp vendor/autoload.php "$PLUGIN_DIR/vendor/"
     
     # Copy composer directory but exclude development files
     mkdir -p "$PLUGIN_DIR/vendor/composer"
-    cp vendor/composer/*.php "$PLUGIN_DIR/vendor/composer/" 2>/dev/null || true
+    
+    # Check for required Composer PHP files
+    composer_php_files=(vendor/composer/*.php)
+    if [ ! -e "${composer_php_files[0]}" ]; then
+        echo -e "${RED}❌ Error: No Composer PHP files found in vendor/composer. Run 'composer install' before creating the release ZIP.${NC}"
+        exit 1
+    fi
+    cp "${composer_php_files[@]}" "$PLUGIN_DIR/vendor/composer/"
+    
+    # Copy optional metadata files
     cp vendor/composer/LICENSE "$PLUGIN_DIR/vendor/composer/" 2>/dev/null || true
     cp vendor/composer/*.json "$PLUGIN_DIR/vendor/composer/" 2>/dev/null || true
     
@@ -115,10 +128,19 @@ if [ -d "vendor" ]; then
         if [ -d "vendor/silverassist/wp-github-updater" ]; then
             mkdir -p "$PLUGIN_DIR/vendor/silverassist/wp-github-updater/src"
             mkdir -p "$PLUGIN_DIR/vendor/silverassist/wp-github-updater/assets"
+            
+            # Copy required files (fail if missing)
+            if [ ! -d "vendor/silverassist/wp-github-updater/src" ] || [ -z "$(ls -A vendor/silverassist/wp-github-updater/src 2>/dev/null)" ]; then
+                echo -e "${RED}❌ Error: wp-github-updater src/ directory is missing or empty${NC}"
+                exit 1
+            fi
+            cp -r vendor/silverassist/wp-github-updater/src/ "$PLUGIN_DIR/vendor/silverassist/wp-github-updater/"
+            
+            # Copy optional files (don't fail if missing)
             cp vendor/silverassist/wp-github-updater/composer.json "$PLUGIN_DIR/vendor/silverassist/wp-github-updater/" 2>/dev/null || true
             cp vendor/silverassist/wp-github-updater/LICENSE.md "$PLUGIN_DIR/vendor/silverassist/wp-github-updater/" 2>/dev/null || true
-            cp -r vendor/silverassist/wp-github-updater/src/ "$PLUGIN_DIR/vendor/silverassist/wp-github-updater/" 2>/dev/null || true
             cp -r vendor/silverassist/wp-github-updater/assets/ "$PLUGIN_DIR/vendor/silverassist/wp-github-updater/" 2>/dev/null || true
+            
             echo "    ✅ silverassist/wp-github-updater (production only)"
         fi
         
@@ -126,10 +148,19 @@ if [ -d "vendor" ]; then
         if [ -d "vendor/silverassist/wp-settings-hub" ]; then
             mkdir -p "$PLUGIN_DIR/vendor/silverassist/wp-settings-hub/src"
             mkdir -p "$PLUGIN_DIR/vendor/silverassist/wp-settings-hub/assets"
+            
+            # Copy required files (fail if missing)
+            if [ ! -d "vendor/silverassist/wp-settings-hub/src" ] || [ -z "$(ls -A vendor/silverassist/wp-settings-hub/src 2>/dev/null)" ]; then
+                echo -e "${RED}❌ Error: wp-settings-hub src/ directory is missing or empty${NC}"
+                exit 1
+            fi
+            cp -r vendor/silverassist/wp-settings-hub/src/ "$PLUGIN_DIR/vendor/silverassist/wp-settings-hub/"
+            
+            # Copy optional files (don't fail if missing)
             cp vendor/silverassist/wp-settings-hub/composer.json "$PLUGIN_DIR/vendor/silverassist/wp-settings-hub/" 2>/dev/null || true
             cp vendor/silverassist/wp-settings-hub/LICENSE "$PLUGIN_DIR/vendor/silverassist/wp-settings-hub/" 2>/dev/null || true
-            cp -r vendor/silverassist/wp-settings-hub/src/ "$PLUGIN_DIR/vendor/silverassist/wp-settings-hub/" 2>/dev/null || true
             cp -r vendor/silverassist/wp-settings-hub/assets/ "$PLUGIN_DIR/vendor/silverassist/wp-settings-hub/" 2>/dev/null || true
+            
             echo "    ✅ silverassist/wp-settings-hub (production only)"
         fi
     fi
