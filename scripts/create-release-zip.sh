@@ -69,6 +69,12 @@ if [ -d "includes" ]; then
     echo "  ✅ includes/ directory copied"
 fi
 
+# Copy assets directory
+if [ -d "assets" ]; then
+    cp -r assets "$PLUGIN_DIR/"
+    echo "  ✅ assets/ directory copied"
+fi
+
 # Copy languages directory if it exists
 if [ -d "languages" ]; then
     cp -r languages "$PLUGIN_DIR/"
@@ -220,6 +226,9 @@ echo "   ├── README.md"
 echo "   ├── CHANGELOG.md"
 echo "   ├── LICENSE"
 echo "   ├── includes/"
+echo "   ├── assets/"
+echo "   │   ├── css/"
+echo "   │   └── js/"
 echo "   ├── composer.json"
 echo "   └── vendor/"
 echo "       ├── autoload.php"
