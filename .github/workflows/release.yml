@@ -19,7 +19,7 @@ jobs:
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v5.2.2
+              uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
             - name: Setup PHP
               uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
@@ -27,6 +27,66 @@ jobs:
                   php-version: "8.3"
                   extensions: mbstring, xml, ctype, json, tokenizer
                   coverage: none
+
+            - name: Install Composer dependencies
+              run: |
+                  composer install --no-dev --optimize-autoloader --no-interaction
+                  echo "✅ Composer dependencies installed successfully"
+            
+            - name: 🔧 Validate Code Quality
+              run: |
+                  # Install dev dependencies for quality checks
+                  composer install --optimize-autoloader --no-interaction
+                  
+                  # Run PHPCS coding standards
+                  echo "Running PHPCS coding standards check..."
+                  composer phpcs || {
+                    echo "⚠️ PHPCS found issues - review recommended before release"
+                  }
+                  
+                  echo "✅ Code quality validation completed"
+
+            - name: Validate wp-github-updater package
+              run: |
+                  echo "🔍 Validating wp-github-updater package version..."
+                  
+                  # Check if package exists
+                  if ! composer show silverassist/wp-github-updater > /dev/null 2>&1; then
+                    echo "❌ silverassist/wp-github-updater package not found!"
+                    echo "This package is CRITICAL for automatic updates functionality."
+                    exit 1
+                  fi
+                  
+                  # Show current version
+                  CURRENT_VERSION=$(composer show silverassist/wp-github-updater | grep '^versions' | awk '{print $2}' | sed 's/\*//')
+                  echo "📦 Current wp-github-updater version: $CURRENT_VERSION"
+                  
+                  # Check for available updates
+                  echo "🔍 Checking for package updates..."
+                  OUTDATED=$(composer outdated silverassist/wp-github-updater --format=json 2>/dev/null || echo "[]")
+                  
+                  if [ "$OUTDATED" != "[]" ] && [ "$OUTDATED" != "" ]; then
+                    echo "⚠️  WARNING: wp-github-updater package may have updates available"
+                    echo "Consider updating before release: composer update silverassist/wp-github-updater"
+                    echo "Current workflow will continue with existing version: $CURRENT_VERSION"
+                  else
+                    echo "✅ wp-github-updater package is up to date: $CURRENT_VERSION"
+                  fi
+                  
+                  # Validate package integrity
+                  echo "🔧 Validating package integrity..."
+                  composer validate --no-check-all --no-check-publish
+                  echo "✅ Package integrity validated successfully"
+                  
+                  # Verify updater functionality files exist
+                  if [ -f "vendor/silverassist/wp-github-updater/src/Updater.php" ]; then
+                    echo "✅ Updater.php found - update functionality available"
+                  else
+                    echo "❌ Updater.php not found - update functionality may be broken!"
+                    exit 1
+                  fi
+                  
+                  echo "✅ wp-github-updater package validation completed successfully"
 
             - name: Extract version from tag or input
               id: version
@@ -43,16 +103,13 @@ jobs:
               run: |
                   VERSION="${{ steps.version.outputs.version }}"
 
-                  # Update main plugin file
-                  sed -i "s/Version: [0-9]\+\.[0-9]\+\.[0-9]\+/Version: $VERSION/" nextjs-graphql-hooks.php
-                  sed -i "s/@version [0-9]\+\.[0-9]\+\.[0-9]\+/@version $VERSION/" nextjs-graphql-hooks.php
+                  # Make the script executable
+                  chmod +x scripts/update-version-simple.sh
 
-                  # Update other PHP files with @version
-                  find includes/ -name "*.php" -exec sed -i "s/@version [0-9]\+\.[0-9]\+\.[0-9]\+/@version $VERSION/" {} \;
+                  # Use our simple update script with --no-confirm flag for CI
+                  echo "y" | ./scripts/update-version-simple.sh "$VERSION"
 
-                  # Update README.md with new version and download links
-                  sed -i "s/- \*\*Latest Version\*\*: [0-9]\+\.[0-9]\+\.[0-9]\+/- **Latest Version**: $VERSION/" README.md
-                  sed -i "s/nextjs-graphql-hooks-v[0-9]\+\.[0-9]\+\.[0-9]\+\.zip/nextjs-graphql-hooks-v$VERSION.zip/g" README.md
+                  echo "Version updated to $VERSION using update-version-simple.sh script"
 
             - name: Create distribution package
               id: package
@@ -195,6 +252,10 @@ jobs:
                   if [ -f "CHANGELOG.md" ]; then
                     echo "Looking for version $VERSION in CHANGELOG.md"
                     
+                    # Debug: Show CHANGELOG structure
+                    echo "Debug: Lines containing version pattern:"
+                    grep -n "\\[${VERSION}\\]" CHANGELOG.md || echo "No direct match found"
+                    
                     # Method 1: Using sed with escaped brackets (most reliable)
                     CHANGES=$(sed -n "/## \\[${VERSION}\\]/,/## \\[/p" CHANGELOG.md | sed '$d' | tail -n +2)
                     
@@ -212,9 +273,27 @@ jobs:
                         echo "## Changes in v$VERSION" > release_notes.md
                         echo "$CHANGES_AWK" >> release_notes.md
                       else
-                        echo "❌ Both methods failed"
-                        echo "## Changes in v$VERSION" > release_notes.md
-                        echo "See [CHANGELOG.md](CHANGELOG.md) for detailed changes." >> release_notes.md
+                        echo "❌ Awk method failed, trying grep method"
+                        # Method 3: Using grep with line numbers (fallback)
+                        LINE_START=$(grep -n "## \\[${VERSION}\\]" CHANGELOG.md | cut -d: -f1)
+                        if [ -n "$LINE_START" ]; then
+                          echo "Found version at line: $LINE_START"
+                          # Extract from start line to next version or end of file
+                          CHANGES_GREP=$(tail -n +$((LINE_START + 1)) CHANGELOG.md | sed '/^## \[/q' | sed '$d')
+                          if [ -n "$CHANGES_GREP" ]; then
+                            echo "✅ Found changes with grep method"
+                            echo "## Changes in v$VERSION" > release_notes.md
+                            echo "$CHANGES_GREP" >> release_notes.md
+                          else
+                            echo "❌ All methods failed"
+                            echo "## Changes in v$VERSION" > release_notes.md
+                            echo "See [CHANGELOG.md](CHANGELOG.md) for detailed changes." >> release_notes.md
+                          fi
+                        else
+                          echo "❌ Version not found in CHANGELOG"
+                          echo "## Changes in v$VERSION" > release_notes.md
+                          echo "See [CHANGELOG.md](CHANGELOG.md) for detailed changes." >> release_notes.md
+                        fi
                       fi
                     fi
                   else
@@ -238,10 +317,18 @@ jobs:
                   4. Activate the plugin
 
                   For detailed installation instructions, see the [README.md](README.md) file.
+
+                  ## ⭐ Features Included
+                  - ✅ GraphQL Page Fields Integration
+                  - ✅ Elementor Support with CSS file generation
+                  - ✅ Extensible Architecture with filter hooks
+                  - ✅ Modern PHP 8.0+ Features
+                  - ✅ **Automatic GitHub Updates** - Powered by silverassist/wp-github-updater package
+                  - ✅ Polyform Noncommercial Licensed
                   EOF
 
             - name: Create GitHub Release
-              uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2.0.8
+              uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
               with:
                   tag_name: ${{ steps.version.outputs.tag }}
                   name: "NextJS GraphQL Hooks v${{ steps.version.outputs.version }}"
@@ -250,12 +337,11 @@ jobs:
                       ${{ steps.package.outputs.zip_path }}
                   draft: false
                   prerelease: false
-                  fail_on_unmatched_files: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Upload package as artifact
-              uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+              uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
               with:
                   name: nextjs-graphql-hooks-v${{ steps.version.outputs.version }}
                   path: ${{ steps.package.outputs.zip_path }}
@@ -264,7 +350,21 @@ jobs:
             - name: Summary
               run: |
                   echo "## 🎉 Release Summary" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Plugin**: NextJS GraphQL Hooks" >> $GITHUB_STEP_SUMMARY
                   echo "- **Version**: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-                  echo "- **Package**: ${{ steps.package.outputs.package_name }}.zip" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Package**: nextjs-graphql-hooks-v${{ steps.version.outputs.version }}.zip" >> $GITHUB_STEP_SUMMARY
                   echo "- **Size**: ~${{ steps.package.outputs.package_size_kb }}" >> $GITHUB_STEP_SUMMARY
                   echo "- **Release**: [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }})" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "### 🚀 Features Included" >> $GITHUB_STEP_SUMMARY
+                  echo "- GraphQL Page Fields Integration" >> $GITHUB_STEP_SUMMARY
+                  echo "- Elementor Support with CSS file generation" >> $GITHUB_STEP_SUMMARY
+                  echo "- Extensible Architecture with filter hooks" >> $GITHUB_STEP_SUMMARY
+                  echo "- Modern PHP 8.0+ Features" >> $GITHUB_STEP_SUMMARY
+                  echo "- Auto-update System" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "### 📦 Package Dependencies" >> $GITHUB_STEP_SUMMARY
+                  UPDATER_VERSION=$(composer show silverassist/wp-github-updater | grep '^versions' | awk '{print $2}' | sed 's/\*//' || echo "Not found")
+                  SETTINGS_VERSION=$(composer show silverassist/wp-settings-hub | grep '^versions' | awk '{print $2}' | sed 's/\*//' || echo "Not found")
+                  echo "- **wp-github-updater**: $UPDATER_VERSION" >> $GITHUB_STEP_SUMMARY
+                  echo "- **wp-settings-hub**: $SETTINGS_VERSION" >> $GITHUB_STEP_SUMMARY
