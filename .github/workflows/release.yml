@@ -73,26 +73,51 @@ jobs:
                     exit 1
                   fi
 
+                  # Get file info before any manipulation
+                  echo "📊 Initial ZIP File Details:"
+                  ls -la "$PACKAGE_NAME.zip"
+                  
                   # Test ZIP file integrity
+                  echo "🔍 Testing ZIP integrity..."
                   if ! unzip -t "$PACKAGE_NAME.zip" > /dev/null 2>&1; then
                     echo "❌ Error: ZIP file is corrupted"
                     exit 1
                   fi
+                  echo "✅ ZIP integrity check passed"
 
-                  # Calculate package size
+                  # Ensure file is fully written to disk
+                  sync
+                  
+                  # Re-check file after sync
+                  echo "📊 Final ZIP File Details:"
+                  ls -la "$PACKAGE_NAME.zip"
+
+                  # Calculate package size with multiple methods for validation
                   PACKAGE_SIZE=$(ls -lh $PACKAGE_NAME.zip | awk '{print $5}')
-                  PACKAGE_SIZE_BYTES=$(stat -c%s $PACKAGE_NAME.zip)
+                  PACKAGE_SIZE_BYTES=$(stat -c%s $PACKAGE_NAME.zip 2>/dev/null || wc -c < $PACKAGE_NAME.zip)
                   PACKAGE_SIZE_KB=$((PACKAGE_SIZE_BYTES / 1024))
 
                   # Debug information
-                  echo "📊 ZIP File Details:"
+                  echo "📊 ZIP File Validation:"
                   echo "  - Name: $PACKAGE_NAME.zip"
-                  echo "  - Size: $PACKAGE_SIZE ($PACKAGE_SIZE_BYTES bytes)"
+                  echo "  - Size (human): $PACKAGE_SIZE"
+                  echo "  - Size (bytes): $PACKAGE_SIZE_BYTES"  
+                  echo "  - Size (KB): ${PACKAGE_SIZE_KB}KB"
                   echo "  - SHA256: $(sha256sum $PACKAGE_NAME.zip | cut -d' ' -f1)"
+                  echo "  - File type: $(file $PACKAGE_NAME.zip)"
                   
-                  # List ZIP contents for verification
-                  echo "📂 ZIP Contents:"
-                  unzip -l "$PACKAGE_NAME.zip" | head -20
+                  # List ZIP contents for verification (first 10 entries)
+                  echo "📂 ZIP Contents (first 10 entries):"
+                  unzip -l "$PACKAGE_NAME.zip" | head -15
+
+                  # Final validation - ensure file is readable and size is consistent
+                  FINAL_SIZE=$(wc -c < "$PACKAGE_NAME.zip")
+                  if [ "$PACKAGE_SIZE_BYTES" != "$FINAL_SIZE" ]; then
+                    echo "❌ Error: File size inconsistent ($PACKAGE_SIZE_BYTES vs $FINAL_SIZE)"
+                    exit 1
+                  fi
+                  
+                  echo "✅ All validations passed"
 
                   echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
                   echo "package_size=$PACKAGE_SIZE" >> $GITHUB_OUTPUT
