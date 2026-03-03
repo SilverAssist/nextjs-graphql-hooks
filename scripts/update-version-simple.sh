@@ -49,6 +49,18 @@ if [ $# -eq 0 ]; then
 fi
 
 NEW_VERSION="$1"
+shift
+
+# Parse flags
+NO_CONFIRM=false
+FORCE=false
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --no-confirm) NO_CONFIRM=true ;;
+        --force) FORCE=true ;;
+    esac
+    shift
+done
 
 # Validate version format
 if ! [[ $NEW_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -73,14 +85,22 @@ fi
 print_status "Current version: ${CURRENT_VERSION}"
 print_status "New version: ${NEW_VERSION}"
 
-# Confirm with user
-echo ""
-read -p "$(echo -e ${YELLOW}[CONFIRM]${NC} Update version from ${CURRENT_VERSION} to ${NEW_VERSION}? [y/N]: )" -n 1 -r
-echo ""
-
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    print_warning "Version update cancelled"
+# Skip if version is already the same and not forced
+if [ "$CURRENT_VERSION" = "$NEW_VERSION" ] && [ "$FORCE" = false ]; then
+    print_success "Version is already ${NEW_VERSION} — nothing to do"
     exit 0
+fi
+
+# Confirm with user
+if [ "$NO_CONFIRM" = false ]; then
+    echo ""
+    read -p "$(echo -e ${YELLOW}[CONFIRM]${NC} Update version from ${CURRENT_VERSION} to ${NEW_VERSION}? [y/N]: )" -n 1 -r
+    echo ""
+
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        print_warning "Version update cancelled"
+        exit 0
+    fi
 fi
 
 echo ""
