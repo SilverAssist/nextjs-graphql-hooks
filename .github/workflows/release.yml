@@ -1,370 +1,92 @@
-name: Create Release Package
+name: Release
 
 on:
-    push:
-        tags:
-            - "v*"
-    workflow_dispatch:
-        inputs:
-            version:
-                description: "Version number (e.g., 1.0.1)"
-                required: true
-                default: "1.0.0"
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 1.2.0). Leave empty to use plugin file version.'
+        required: false
+
+permissions:
+  contents: write
 
 jobs:
-    build-and-release:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write
+  release:
+    name: Build & Release
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            - name: Setup PHP
-              uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
-              with:
-                  php-version: "8.3"
-                  extensions: mbstring, xml, ctype, json, tokenizer
-                  coverage: none
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
 
-            - name: Install Composer dependencies
-              run: |
-                  composer install --no-dev --optimize-autoloader --no-interaction
-                  echo "✅ Composer dependencies installed successfully"
-            
-            - name: 🔧 Validate Code Quality
-              run: |
-                  # Install dev dependencies for quality checks
-                  composer install --optimize-autoloader --no-interaction
-                  
-                  # Run PHPCS coding standards
-                  echo "Running PHPCS coding standards check..."
-                  composer phpcs || {
-                    echo "⚠️ PHPCS found issues - review recommended before release"
-                  }
-                  
-                  echo "✅ Code quality validation completed"
+      - name: Detect version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          elif [[ -n "${{ github.event.inputs.version }}" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=$(grep -o 'Version: [0-9]\+\.[0-9]\+\.[0-9]\+' *.php 2>/dev/null | head -1 | cut -d' ' -f2)
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "🏷️ Version: $VERSION"
 
-            - name: Validate wp-github-updater package
-              run: |
-                  echo "🔍 Validating wp-github-updater package version..."
-                  
-                  # Check if package exists
-                  if ! composer show silverassist/wp-github-updater > /dev/null 2>&1; then
-                    echo "❌ silverassist/wp-github-updater package not found!"
-                    echo "This package is CRITICAL for automatic updates functionality."
-                    exit 1
-                  fi
-                  
-                  # Show current version
-                  CURRENT_VERSION=$(composer show silverassist/wp-github-updater | grep '^versions' | awk '{print $2}' | sed 's/\*//')
-                  echo "📦 Current wp-github-updater version: $CURRENT_VERSION"
-                  
-                  # Check for available updates
-                  echo "🔍 Checking for package updates..."
-                  OUTDATED=$(composer outdated silverassist/wp-github-updater --format=json 2>/dev/null || echo "[]")
-                  
-                  if [ "$OUTDATED" != "[]" ] && [ "$OUTDATED" != "" ]; then
-                    echo "⚠️  WARNING: wp-github-updater package may have updates available"
-                    echo "Consider updating before release: composer update silverassist/wp-github-updater"
-                    echo "Current workflow will continue with existing version: $CURRENT_VERSION"
-                  else
-                    echo "✅ wp-github-updater package is up to date: $CURRENT_VERSION"
-                  fi
-                  
-                  # Validate package integrity
-                  echo "🔧 Validating package integrity..."
-                  composer validate --no-check-all --no-check-publish
-                  echo "✅ Package integrity validated successfully"
-                  
-                  # Verify updater functionality files exist
-                  if [ -f "vendor/silverassist/wp-github-updater/src/Updater.php" ]; then
-                    echo "✅ Updater.php found - update functionality available"
-                  else
-                    echo "❌ Updater.php not found - update functionality may be broken!"
-                    exit 1
-                  fi
-                  
-                  echo "✅ wp-github-updater package validation completed successfully"
+      - name: Install dependencies
+        run: composer install --no-interaction
 
-            - name: Extract version from tag or input
-              id: version
-              run: |
-                  if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-                    VERSION="${{ github.event.inputs.version }}"
-                  else
-                    VERSION=${GITHUB_REF#refs/tags/v}
-                  fi
-                  echo "version=$VERSION" >> $GITHUB_OUTPUT
-                  echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+      - name: Update version
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if [ -f "scripts/update-version.sh" ]; then
+            chmod +x scripts/update-version.sh
+            ./scripts/update-version.sh "$VERSION" --no-confirm --force
+          elif [ -f "scripts/update-version-simple.sh" ]; then
+            chmod +x scripts/update-version-simple.sh
+            ./scripts/update-version-simple.sh "$VERSION" --no-confirm --force
+          fi
 
-            - name: Update version in plugin files
-              run: |
-                  VERSION="${{ steps.version.outputs.version }}"
+      - name: Code quality
+        run: |
+          HAS_CHECKS=false
+          if [ -f phpcs.xml ] || [ -f .phpcs.xml.dist ] || [ -f phpcs.xml.dist ]; then
+            echo "▶ PHPCS"
+            vendor/bin/phpcs
+            HAS_CHECKS=true
+          fi
+          if [ -f phpstan.neon ] || [ -f phpstan.neon.dist ]; then
+            echo "▶ PHPStan"
+            vendor/bin/phpstan analyse --no-progress
+            HAS_CHECKS=true
+          fi
+          if [ "$HAS_CHECKS" = false ]; then
+            echo "ℹ️ No quality tool configs found — skipping"
+          fi
 
-                  # Make the script executable
-                  chmod +x scripts/update-version-simple.sh
+      - name: Build release
+        id: build
+        run: |
+          chmod +x scripts/build-release.sh
+          ./scripts/build-release.sh "${{ steps.version.outputs.version }}"
 
-                  # Use our simple update script with --no-confirm flag for CI
-                  echo "y" | ./scripts/update-version-simple.sh "$VERSION"
-
-                  echo "Version updated to $VERSION using update-version-simple.sh script"
-
-            - name: Create distribution package
-              id: package
-              run: |
-                  VERSION="${{ steps.version.outputs.version }}"
-                  PACKAGE_NAME="nextjs-graphql-hooks-v$VERSION"
-
-                  # Make the script executable
-                  chmod +x scripts/create-release-zip.sh
-
-                  # Use our custom script to create properly structured ZIP
-                  # Note: The script handles composer install internally
-                  ./scripts/create-release-zip.sh
-
-                  # Verify the ZIP file was created and is valid
-                  if [ ! -f "$PACKAGE_NAME.zip" ]; then
-                    echo "❌ Error: ZIP file was not created"
-                    exit 1
-                  fi
-
-                  # Get file info before any manipulation
-                  echo "📊 Initial ZIP File Details:"
-                  ls -la "$PACKAGE_NAME.zip"
-                  
-                  # Test ZIP file integrity
-                  echo "🔍 Testing ZIP integrity..."
-                  if ! unzip -t "$PACKAGE_NAME.zip" > /dev/null 2>&1; then
-                    echo "❌ Error: ZIP file is corrupted"
-                    exit 1
-                  fi
-                  echo "✅ ZIP integrity check passed"
-
-                  # Ensure file is fully written to disk
-                  sync
-                  
-                  # Re-check file after sync
-                  echo "📊 Final ZIP File Details:"
-                  ls -la "$PACKAGE_NAME.zip"
-
-                  # Calculate package size with multiple methods for validation
-                  PACKAGE_SIZE=$(ls -lh $PACKAGE_NAME.zip | awk '{print $5}')
-                  PACKAGE_SIZE_BYTES=$(stat -c%s $PACKAGE_NAME.zip 2>/dev/null || wc -c < $PACKAGE_NAME.zip)
-                  PACKAGE_SIZE_KB=$((PACKAGE_SIZE_BYTES / 1024))
-
-                  # Debug information
-                  echo "📊 ZIP File Validation:"
-                  echo "  - Name: $PACKAGE_NAME.zip"
-                  echo "  - Size (human): $PACKAGE_SIZE"
-                  echo "  - Size (bytes): $PACKAGE_SIZE_BYTES"  
-                  echo "  - Size (KB): ${PACKAGE_SIZE_KB}KB"
-                  echo "  - SHA256: $(sha256sum $PACKAGE_NAME.zip | cut -d' ' -f1)"
-                  echo "  - File type: $(file $PACKAGE_NAME.zip)"
-                  
-                  # List ZIP contents for verification (first 10 entries)
-                  echo "📂 ZIP Contents (first 10 entries):"
-                  unzip -l "$PACKAGE_NAME.zip" | head -15
-
-                  # Final validation - ensure file is readable and size is consistent
-                  FINAL_SIZE=$(wc -c < "$PACKAGE_NAME.zip")
-                  if [ "$PACKAGE_SIZE_BYTES" != "$FINAL_SIZE" ]; then
-                    echo "❌ Error: File size inconsistent ($PACKAGE_SIZE_BYTES vs $FINAL_SIZE)"
-                    exit 1
-                  fi
-                  
-                  echo "✅ All validations passed"
-
-                  echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
-                  echo "package_size=$PACKAGE_SIZE" >> $GITHUB_OUTPUT
-                  echo "package_size_kb=${PACKAGE_SIZE_KB}KB" >> $GITHUB_OUTPUT
-                  echo "zip_path=$PACKAGE_NAME.zip" >> $GITHUB_OUTPUT
-
-                  echo "📦 Package created: $PACKAGE_NAME.zip"
-                  echo "📏 Package size: $PACKAGE_SIZE (~${PACKAGE_SIZE_KB}KB)"
-
-            - name: Update RELEASE-NOTES.md
-              run: |
-                  VERSION="${{ steps.version.outputs.version }}"
-                  PACKAGE_SIZE="${{ steps.package.outputs.package_size_kb }}"
-                  DATE=$(date +"%B %d, %Y")
-
-                  # Create updated RELEASE-NOTES.md
-                  cat > RELEASE-NOTES.md << EOF
-                  # NextJS GraphQL Hooks Plugin - Release v$VERSION
-
-                  ## Package Information
-                  - **Plugin Name**: NextJS GraphQL Hooks
-                  - **Version**: $VERSION
-                  - **File**: nextjs-graphql-hooks-v$VERSION.zip
-                  - **Size**: ~$PACKAGE_SIZE
-                  - **Release Date**: $DATE
-                  - **License**: Polyform Noncommercial License 1.0.0
-                  - **Repository**: https://github.com/SilverAssist/nextjs-graphql-hooks
-
-                  ## Installation Package Contents
-                  - Main plugin file (\`nextjs-graphql-hooks.php\`)
-                  - GraphQL hooks class (\`includes/GraphQL_Hooks.php\`)
-                  - Auto-updater class (\`includes/Updater.php\`)
-                  - Documentation ([README.md](README.md), [CHANGELOG.md](CHANGELOG.md))
-                  - License file (\`LICENSE\`)
-
-                  ## Installation Methods
-                  1. **WordPress Admin Dashboard** (Recommended)
-                  2. **Manual FTP Upload**
-                  3. **WP-CLI Installation**
-                  4. **Auto-update from GitHub** (if enabled)
-
-                  ## Requirements
-                  - WordPress 6.5+
-                  - PHP 8.0+
-                  - WPGraphQL plugin (automatically managed as dependency)
-                  - Elementor (optional)
-
-                  ## Features Included
-                  - ✅ GraphQL Page Fields Integration
-                  - ✅ Elementor Support
-                  - ✅ Extensible Architecture
-                  - ✅ Modern PHP 8.0+ Features
-                  - ✅ Auto-update System
-                  - ✅ Polyform Noncommercial Licensed
-
-                  ## Distribution Channels
-                  - **GitHub Releases**: Source code and compiled packages
-                  - **Auto-update**: Direct from GitHub
-
-                  ## Support & Documentation
-                  - **Installation Guide**: [README.md](README.md)
-                  - **Change History**: [CHANGELOG.md](CHANGELOG.md)
-                  - **Issues**: GitHub Issues tracker
-
-                  ## Installation Instructions
-                  See [README.md](README.md) for complete installation guide.
-                  EOF
-
-            - name: Generate release notes from CHANGELOG
-              id: changelog
-              run: |
-                  VERSION="${{ steps.version.outputs.version }}"
-
-                  # Extract current version changes from CHANGELOG.md
-                  if [ -f "CHANGELOG.md" ]; then
-                    echo "Looking for version $VERSION in CHANGELOG.md"
-                    
-                    # Debug: Show CHANGELOG structure
-                    echo "Debug: Lines containing version pattern:"
-                    grep -n "\\[${VERSION}\\]" CHANGELOG.md || echo "No direct match found"
-                    
-                    # Method 1: Using sed with escaped brackets (most reliable)
-                    CHANGES=$(sed -n "/## \\[${VERSION}\\]/,/## \\[/p" CHANGELOG.md | sed '$d' | tail -n +2)
-                    
-                    if [ -n "$CHANGES" ]; then
-                      echo "✅ Found changes with sed method"
-                      echo "## Changes in v$VERSION" > release_notes.md
-                      echo "$CHANGES" >> release_notes.md
-                    else
-                      echo "❌ Sed method failed, trying awk method"
-                      # Method 2: Using awk (more reliable across different systems)
-                      CHANGES_AWK=$(awk "/^## \\[${VERSION}\\]/{flag=1; next} /^## \\[/{flag=0} flag" CHANGELOG.md)
-                      
-                      if [ -n "$CHANGES_AWK" ]; then
-                        echo "✅ Found changes with awk method"
-                        echo "## Changes in v$VERSION" > release_notes.md
-                        echo "$CHANGES_AWK" >> release_notes.md
-                      else
-                        echo "❌ Awk method failed, trying grep method"
-                        # Method 3: Using grep with line numbers (fallback)
-                        LINE_START=$(grep -n "## \\[${VERSION}\\]" CHANGELOG.md | cut -d: -f1)
-                        if [ -n "$LINE_START" ]; then
-                          echo "Found version at line: $LINE_START"
-                          # Extract from start line to next version or end of file
-                          CHANGES_GREP=$(tail -n +$((LINE_START + 1)) CHANGELOG.md | sed '/^## \[/q' | sed '$d')
-                          if [ -n "$CHANGES_GREP" ]; then
-                            echo "✅ Found changes with grep method"
-                            echo "## Changes in v$VERSION" > release_notes.md
-                            echo "$CHANGES_GREP" >> release_notes.md
-                          else
-                            echo "❌ All methods failed"
-                            echo "## Changes in v$VERSION" > release_notes.md
-                            echo "See [CHANGELOG.md](CHANGELOG.md) for detailed changes." >> release_notes.md
-                          fi
-                        else
-                          echo "❌ Version not found in CHANGELOG"
-                          echo "## Changes in v$VERSION" > release_notes.md
-                          echo "See [CHANGELOG.md](CHANGELOG.md) for detailed changes." >> release_notes.md
-                        fi
-                      fi
-                    fi
-                  else
-                    echo "CHANGELOG.md not found"
-                    echo "## Release v$VERSION" > release_notes.md
-                    echo "New release of NextJS GraphQL Hooks Plugin" >> release_notes.md
-                  fi
-
-                  # Add package information to release notes
-                  cat >> release_notes.md << EOF
-
-                  ## 📦 Package Information
-                  - **File**: nextjs-graphql-hooks-v$VERSION.zip
-                  - **Size**: ~${{ steps.package.outputs.package_size_kb }}
-                  - **License**: Polyform Noncommercial License 1.0.0
-
-                  ## 🚀 Installation
-                  1. Download the ZIP file below
-                  2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
-                  3. Choose the downloaded ZIP file and click "Install Now"
-                  4. Activate the plugin
-
-                  For detailed installation instructions, see the [README.md](README.md) file.
-
-                  ## ⭐ Features Included
-                  - ✅ GraphQL Page Fields Integration
-                  - ✅ Elementor Support with CSS file generation
-                  - ✅ Extensible Architecture with filter hooks
-                  - ✅ Modern PHP 8.0+ Features
-                  - ✅ **Automatic GitHub Updates** - Powered by silverassist/wp-github-updater package
-                  - ✅ Polyform Noncommercial Licensed
-                  EOF
-
-            - name: Create GitHub Release
-              uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
-              with:
-                  tag_name: ${{ steps.version.outputs.tag }}
-                  name: "NextJS GraphQL Hooks v${{ steps.version.outputs.version }}"
-                  body_path: release_notes.md
-                  files: |
-                      ${{ steps.package.outputs.zip_path }}
-                  draft: false
-                  prerelease: false
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            - name: Upload package as artifact
-              uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-              with:
-                  name: nextjs-graphql-hooks-v${{ steps.version.outputs.version }}
-                  path: ${{ steps.package.outputs.zip_path }}
-                  retention-days: 90
-
-            - name: Summary
-              run: |
-                  echo "## 🎉 Release Summary" >> $GITHUB_STEP_SUMMARY
-                  echo "- **Plugin**: NextJS GraphQL Hooks" >> $GITHUB_STEP_SUMMARY
-                  echo "- **Version**: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-                  echo "- **Package**: nextjs-graphql-hooks-v${{ steps.version.outputs.version }}.zip" >> $GITHUB_STEP_SUMMARY
-                  echo "- **Size**: ~${{ steps.package.outputs.package_size_kb }}" >> $GITHUB_STEP_SUMMARY
-                  echo "- **Release**: [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }})" >> $GITHUB_STEP_SUMMARY
-                  echo "" >> $GITHUB_STEP_SUMMARY
-                  echo "### 🚀 Features Included" >> $GITHUB_STEP_SUMMARY
-                  echo "- GraphQL Page Fields Integration" >> $GITHUB_STEP_SUMMARY
-                  echo "- Elementor Support with CSS file generation" >> $GITHUB_STEP_SUMMARY
-                  echo "- Extensible Architecture with filter hooks" >> $GITHUB_STEP_SUMMARY
-                  echo "- Modern PHP 8.0+ Features" >> $GITHUB_STEP_SUMMARY
-                  echo "- Auto-update System" >> $GITHUB_STEP_SUMMARY
-                  echo "" >> $GITHUB_STEP_SUMMARY
-                  echo "### 📦 Package Dependencies" >> $GITHUB_STEP_SUMMARY
-                  UPDATER_VERSION=$(composer show silverassist/wp-github-updater | grep '^versions' | awk '{print $2}' | sed 's/\*//' || echo "Not found")
-                  SETTINGS_VERSION=$(composer show silverassist/wp-settings-hub | grep '^versions' | awk '{print $2}' | sed 's/\*//' || echo "Not found")
-                  echo "- **wp-github-updater**: $UPDATER_VERSION" >> $GITHUB_STEP_SUMMARY
-                  echo "- **wp-settings-hub**: $SETTINGS_VERSION" >> $GITHUB_STEP_SUMMARY
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          files: |
+            build/*.zip
+            build/*.md5
+            build/*.sha256
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

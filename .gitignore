@@ -30,6 +30,9 @@ Thumbs.db
 # PHPUnit
 .phpunit.result.cache
 
+# Build
+build/
+
 # Temporary files
 *.tmp
 *.bak
