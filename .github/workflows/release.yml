@@ -67,10 +67,32 @@ jobs:
                   # Note: The script handles composer install internally
                   ./scripts/create-release-zip.sh
 
+                  # Verify the ZIP file was created and is valid
+                  if [ ! -f "$PACKAGE_NAME.zip" ]; then
+                    echo "❌ Error: ZIP file was not created"
+                    exit 1
+                  fi
+
+                  # Test ZIP file integrity
+                  if ! unzip -t "$PACKAGE_NAME.zip" > /dev/null 2>&1; then
+                    echo "❌ Error: ZIP file is corrupted"
+                    exit 1
+                  fi
+
                   # Calculate package size
                   PACKAGE_SIZE=$(ls -lh $PACKAGE_NAME.zip | awk '{print $5}')
                   PACKAGE_SIZE_BYTES=$(stat -c%s $PACKAGE_NAME.zip)
                   PACKAGE_SIZE_KB=$((PACKAGE_SIZE_BYTES / 1024))
+
+                  # Debug information
+                  echo "📊 ZIP File Details:"
+                  echo "  - Name: $PACKAGE_NAME.zip"
+                  echo "  - Size: $PACKAGE_SIZE ($PACKAGE_SIZE_BYTES bytes)"
+                  echo "  - SHA256: $(sha256sum $PACKAGE_NAME.zip | cut -d' ' -f1)"
+                  
+                  # List ZIP contents for verification
+                  echo "📂 ZIP Contents:"
+                  unzip -l "$PACKAGE_NAME.zip" | head -20
 
                   echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
                   echo "package_size=$PACKAGE_SIZE" >> $GITHUB_OUTPUT
@@ -207,7 +229,7 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Upload package as artifact
-              uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+              uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
               with:
                   name: nextjs-graphql-hooks-v${{ steps.version.outputs.version }}
                   path: ${{ steps.package.outputs.zip_path }}
