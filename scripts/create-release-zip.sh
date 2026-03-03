@@ -114,9 +114,21 @@ if [ -d "vendor" ]; then
     # But exclude tests and dev files
     if [ -d "vendor/composer/installers" ]; then
         mkdir -p "$PLUGIN_DIR/vendor/composer/installers/src"
+        
+        # Copy optional metadata files
         cp vendor/composer/installers/composer.json "$PLUGIN_DIR/vendor/composer/installers/" 2>/dev/null || true
         cp vendor/composer/installers/LICENSE "$PLUGIN_DIR/vendor/composer/installers/" 2>/dev/null || true
-        cp -r vendor/composer/installers/src/ "$PLUGIN_DIR/vendor/composer/installers/"
+        
+        # Copy required src directory (fail if copy fails)
+        if [ ! -d "vendor/composer/installers/src" ] || [ -z "$(ls -A vendor/composer/installers/src 2>/dev/null)" ]; then
+            echo -e "${RED}❌ Error: composer/installers src/ directory is missing or empty${NC}"
+            exit 1
+        fi
+        if ! cp -r vendor/composer/installers/src/ "$PLUGIN_DIR/vendor/composer/installers/"; then
+            echo -e "${RED}❌ Error: Failed to copy composer/installers src/ directory${NC}"
+            exit 1
+        fi
+        
         echo "    ✅ composer/installers (production only)"
     fi
     
@@ -134,7 +146,10 @@ if [ -d "vendor" ]; then
                 echo -e "${RED}❌ Error: wp-github-updater src/ directory is missing or empty${NC}"
                 exit 1
             fi
-            cp -r vendor/silverassist/wp-github-updater/src/ "$PLUGIN_DIR/vendor/silverassist/wp-github-updater/"
+            if ! cp -r vendor/silverassist/wp-github-updater/src/ "$PLUGIN_DIR/vendor/silverassist/wp-github-updater/"; then
+                echo -e "${RED}❌ Error: Failed to copy wp-github-updater src/ directory${NC}"
+                exit 1
+            fi
             
             # Copy optional files (don't fail if missing)
             cp vendor/silverassist/wp-github-updater/composer.json "$PLUGIN_DIR/vendor/silverassist/wp-github-updater/" 2>/dev/null || true
@@ -154,7 +169,10 @@ if [ -d "vendor" ]; then
                 echo -e "${RED}❌ Error: wp-settings-hub src/ directory is missing or empty${NC}"
                 exit 1
             fi
-            cp -r vendor/silverassist/wp-settings-hub/src/ "$PLUGIN_DIR/vendor/silverassist/wp-settings-hub/"
+            if ! cp -r vendor/silverassist/wp-settings-hub/src/ "$PLUGIN_DIR/vendor/silverassist/wp-settings-hub/"; then
+                echo -e "${RED}❌ Error: Failed to copy wp-settings-hub src/ directory${NC}"
+                exit 1
+            fi
             
             # Copy optional files (don't fail if missing)
             cp vendor/silverassist/wp-settings-hub/composer.json "$PLUGIN_DIR/vendor/silverassist/wp-settings-hub/" 2>/dev/null || true
