@@ -5,6 +5,25 @@ All notable changes to the NextJS GraphQL Hooks Plugin will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-03-03
+
+### 🐛 Fixed
+- **Vendor Assets**: Ensure vendor package assets (CSS/JS) are included in release builds
+
+### ♻️ Refactoring
+- **Release Pipeline**: Unify release workflow and build script across all plugins
+  - Replace `create-release-zip.sh` with unified `build-release.sh`
+  - Selective copy strategy with auto-detection of plugin structure
+  - Remove `composer.json` from ZIP (not needed at runtime)
+  - Add `build/` to `.gitignore`
+  - Generate MD5 + SHA256 checksums
+
+### 🔒 Security
+- **GitHub Actions**: Pin all dependencies to SHA hashes for supply chain protection
+  - `actions/checkout@v4.3.1`
+  - `shivammathur/setup-php@v2.36.0`
+  - `softprops/action-gh-release@v2.5.0`
+
 ## [1.1.0] - 2026-03-02
 
 ### 🎨 UI Improvements
