@@ -117,7 +117,7 @@ if [ -d "vendor" ]; then
             mkdir -p "$PLUGIN_DIR/vendor/silverassist/wp-github-updater/assets"
             cp vendor/silverassist/wp-github-updater/composer.json "$PLUGIN_DIR/vendor/silverassist/wp-github-updater/" 2>/dev/null || true
             cp vendor/silverassist/wp-github-updater/LICENSE.md "$PLUGIN_DIR/vendor/silverassist/wp-github-updater/" 2>/dev/null || true
-            cp -r vendor/silverassist/wp-github-updater/src/ "$PLUGIN_DIR/vendor/silverassist/wp-github-updater/"
+            cp -r vendor/silverassist/wp-github-updater/src/ "$PLUGIN_DIR/vendor/silverassist/wp-github-updater/" 2>/dev/null || true
             cp -r vendor/silverassist/wp-github-updater/assets/ "$PLUGIN_DIR/vendor/silverassist/wp-github-updater/" 2>/dev/null || true
             echo "    ✅ silverassist/wp-github-updater (production only)"
         fi

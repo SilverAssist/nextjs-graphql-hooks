@@ -35,23 +35,6 @@ nextjs-graphql-hooks.php
 includes/
 vendor/
 
-# Exclude vendor test and dev files from releases
-vendor/**/tests/ export-ignore
-vendor/**/test/ export-ignore
-vendor/**/.git export-ignore
-vendor/**/.github export-ignore
-vendor/**/phpunit.xml export-ignore
-vendor/**/phpunit.xml.dist export-ignore
-vendor/**/phpcs.xml export-ignore
-vendor/**/phpcs.xml.dist export-ignore
-vendor/**/phpstan.neon export-ignore
-vendor/**/phpstan.neon.dist export-ignore
-vendor/**/phpstan-baseline.neon export-ignore
-vendor/**/.editorconfig export-ignore
-vendor/**/CONTRIBUTING.md export-ignore
-vendor/**/_config.yml export-ignore
-vendor/**/.packagist.yml export-ignore
-
 # Binary files
 *.zip binary
 *.tar.gz binary
