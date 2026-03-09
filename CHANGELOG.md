@@ -5,12 +5,21 @@ All notable changes to the NextJS GraphQL Hooks Plugin will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-03-09
+
+### Changed
+
+- **Release Pipeline**: Add Node.js setup and asset build steps to release workflow for minified assets
+- **Release Pipeline**: Make Node.js steps conditional on `package.json` existence to prevent CI failures
+
 ## [1.2.0] - 2026-03-03
 
 ### 🐛 Fixed
+
 - **Vendor Assets**: Ensure vendor package assets (CSS/JS) are included in release builds
 
 ### ♻️ Refactoring
+
 - **Release Pipeline**: Unify release workflow and build script across all plugins
   - Replace `create-release-zip.sh` with unified `build-release.sh`
   - Selective copy strategy with auto-detection of plugin structure
@@ -19,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Generate MD5 + SHA256 checksums
 
 ### 🔒 Security
+
 - **GitHub Actions**: Pin all dependencies to SHA hashes for supply chain protection
   - `actions/checkout@v4.3.1`
   - `shivammathur/setup-php@v2.36.0`
@@ -27,30 +37,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.0] - 2026-03-02
 
 ### 🎨 UI Improvements
+
 - **Admin Dashboard Refactor**: Aligned admin dashboard UI with card-based design system
   - Modern, consistent visual appearance
   - Improved user experience
 
 ### 🔒 Security
+
 - **CodeQL Security Scanning**: Added CodeQL workflow for automated security analysis
 - **Immutable GitHub Actions**: Pinned all GitHub Actions to specific commit SHAs for improved supply chain security
 - **Explicit Workflow Permissions**: Added explicit permissions to all GitHub Actions workflows following security best practices
 
 ### 🔧 CI/CD Updates
+
 - **Dependabot Integration**: Added Dependabot configuration for automated dependency updates
-- **GitHub Actions Updates**: 
+- **GitHub Actions Updates**:
   - Updated `actions/checkout` from v4 to v6
   - Updated `actions/upload-artifact` from v4 to v6
   - Updated `shivammathur/setup-php` to latest version
   - Updated `softprops/action-gh-release` from v1 to v2
 
 ### 📦 Dependencies
+
 - **WPCS 3.2**: Upgraded to WordPress Coding Standards 3.2 with required dependencies
 - **Composer Installers**: Updated `composer/installers` requirement from ^1.0 to ^2.3
 
 ## [1.0.4] - 2025-10-10
 
 ### ✨ New Features
+
 - **Settings Hub Integration**: Added support for `silverassist/wp-settings-hub` package
   - Centralized admin menu under "Silver Assist" menu
   - Graceful fallback to standalone settings page when Settings Hub unavailable
@@ -70,6 +85,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - GraphQL query examples and filter usage
 
 ### 🎨 Assets
+
 - **Admin CSS**: Modern, responsive admin interface styles
   - CSS custom properties for easy theming
   - Status badges and visual indicators
@@ -82,6 +98,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Update checking via AJAX
 
 ### 🔧 Enhanced
+
 - **Security**: Comprehensive security implementation
   - Nonce verification for all AJAX requests
   - Capability checking for admin access
@@ -93,6 +110,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Works with custom menu configurations
 
 ### 📚 Documentation
+
 - **Centralized Documentation**: All documentation consolidated in README.md
   - Admin panel usage guide
   - Settings Hub integration details
@@ -104,6 +122,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Maintains clean repository structure
 
 ### 🛠️ Technical
+
 - **Dependencies**: Added `silverassist/wp-settings-hub` ^1.1
 - **Files Added**:
   - `includes/AdminPanel.php` - Main admin panel class
@@ -119,11 +138,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.3] - 2025-08-12
 
 ### 🔧 Enhanced
+
 - **Internationalization Support**: Added `text_domain` configuration to updater for proper i18n support
 - **Updated Package Dependencies**: Upgraded `silverassist/wp-github-updater` to v1.1.0 with enhanced translation capabilities
 - **Improved Update Messages**: All updater messages now use plugin's text domain for consistent translations
 
 ### 🛠️ Technical
+
 - Enhanced updater configuration with `text_domain: "nextjs-graphql-hooks"`
 - Leverages new translation wrapper methods from wp-github-updater v1.1.0
 - Improved HTTP header management for GitHub API interactions
@@ -131,34 +152,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.2] - 2025-08-07
 
 ### 🚀 Major Updates
+
 - **Modularized Updater System**: Integrated reusable `silverassist/wp-github-updater` package
 - **Optimized Build Process**: Enhanced release script with production-only dependencies
 - **Improved CI/CD**: Updated GitHub Actions workflow with Composer support
 
 ### ✨ Added
+
 - Composer autoloader integration in main plugin file
 - Production dependency management in build script
 - Optimized vendor directory packaging (only necessary files)
 - Automatic development dependency restoration after build
 
 ### 🔧 Changed
+
 - **BREAKING**: Refactored `Updater.php` class to extend `SilverAssist\WpGithubUpdater\Updater`
 - Reduced Updater class from ~200 lines to ~35 lines (-82% code reduction)
 - Updated `create-release-zip.sh` script with Composer dependency handling
 - Enhanced GitHub Actions workflow with PHP setup and dependency installation
 
 ### 🐛 Fixed
+
 - Resolved missing dependencies in CI/CD pipeline
 - Fixed release package size optimization (now includes only production dependencies)
 - Improved error handling in build scripts
 
 ### 📚 Technical Details
+
 - **Dependencies**: Added `silverassist/wp-github-updater:^1.0`
 - **Build Size**: Optimized from ~50KB to ~156KB (includes vendor dependencies)
 - **Maintainability**: Centralized update logic in external package
 - **Compatibility**: Maintains full backward compatibility
 
 ### 🔄 Migration Notes
+
 - Existing installations will automatically use the new updater system
 - No manual intervention required for end users
 - Developers can now reuse the same updater package across multiple plugins
@@ -166,18 +193,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.1] - 2025-07-30
 
 ### Updated
+
 - Updated Copilot instructions to reflect current plugin architecture and scripts structure
 - Improved version management scripts documentation
 - Enhanced filter system documentation with comprehensive examples
 - Updated file structure documentation in Copilot instructions
 
 ### Fixed
+
 - Corrected script references in documentation to match actual file structure
 - Updated version management workflow with proper script recommendations
 
 ## [1.0.0] - 2025-07-29
 
 ### Added
+
 - Initial release of NextJS GraphQL Hooks plugin
 - **WordPress 6.5+ Plugin Dependencies**: Automatic WPGraphQL dependency management using WordPress native plugin dependencies feature
 - Default Page fields for Elementor integration:
@@ -219,21 +249,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Development standards
 
 ### Security
+
 - Input sanitization for GraphQL arguments
 - Proper error message handling to prevent sensitive information exposure
 - WordPress capability integration ready for future enhancements
 
 ### Requirements
+
 - **WordPress 6.5+** (for automatic plugin dependency management)
 - **PHP 8.0+** (modern syntax and features)
 - **WPGraphQL plugin** (automatically managed as dependency in WP 6.5+)
 
 ### Compatibility Notes
+
 - For WordPress versions below 6.5, WPGraphQL must be installed manually
 - Automatic plugin dependency management requires WordPress 6.5 or later
 - All features fully supported on WordPress 6.5+ with automatic dependency resolution
 
 ### Technical Details
+
 - Requires WordPress 5.0+
 - Requires PHP 8.0+
 - Requires WPGraphQL plugin
