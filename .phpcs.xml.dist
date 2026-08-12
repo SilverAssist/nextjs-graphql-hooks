@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="NextJS GraphQL Hooks" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd">
-    <description>Coding standards for NextJS GraphQL Hooks WordPress plugin</description>
+    <description>Uses the shared SilverAssistWP ruleset from silverassist/wp-coding-standards.</description>
 
     <!-- Show progress and sniff codes in all reports -->
     <arg value="ps"/>
@@ -11,20 +11,7 @@
     <!-- Limit to PHP files only -->
     <arg name="extensions" value="php"/>
 
-    <!-- The base WordPress-Core standard -->
-    <rule ref="WordPress-Core">
-        <!-- Allow short array syntax -->
-        <exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
-    </rule>
-
-    <!-- Include WordPress-Extra rules for best practices -->
-    <rule ref="WordPress-Extra">
-        <!-- Allow short array syntax -->
-        <exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
-    </rule>
-
-    <!-- Include the whole WordPress standard -->
-    <rule ref="WordPress"/>
+    <rule ref="SilverAssistWP"/>
 
     <!-- Include directories to scan -->
     <file>.</file>
@@ -37,6 +24,10 @@
     <exclude-pattern>*.css</exclude-pattern>
     <exclude-pattern>*.md</exclude-pattern>
 
-    <!-- Check for PHP version compatibility -->
+    <!-- Overrides SilverAssistWP's default testVersion (8.2-): this plugin
+         declares and is distributed for PHP 8.0+ (see composer.json and
+         the plugin header). Note CI's quality-checks.yml matrix currently
+         only actually tests PHP 8.3, so this floor isn't continuously
+         verified in practice; worth a follow-up, out of scope here. -->
     <config name="testVersion" value="8.0-"/>
 </ruleset>
