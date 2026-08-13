@@ -1,0 +1,43 @@
+includes:
+    - vendor/silverassist/coding-standards/phpstan/base.neon
+    - vendor/silverassist/wp-coding-standards/phpstan/base.neon
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+    paths:
+        - includes
+    bootstrapFiles:
+        - nextjs-graphql-hooks.php
+    excludePaths:
+        - tests/*
+    ignoreErrors:
+        # WPGraphQL/Elementor classes and globals — this repo doesn't (and
+        # shouldn't) depend on webonyx/graphql-php or the Elementor/WPGraphQL
+        # stub packages just for static analysis; both plugins are optional
+        # runtime dependencies gated behind class_exists() checks elsewhere.
+        -
+            message: '#(WPGraphQL\\|Elementor\\Core\\Files\\CSS\\)#'
+            path: includes/GraphQL_Hooks.php
+        -
+            message: '#Function register_graphql_object_type not found#'
+            path: includes/GraphQL_Hooks.php
+
+        # define()-based constants (plugin_dir_path()/plugin_dir_url() results)
+        # are conservatively typed by PHPStan's constant inference — these are
+        # always defined by the time this deprecated facade runs.
+        -
+            message: '#should return string but returns null#'
+            path: includes/NextJS_GraphQL_Hooks.php
+
+        # Pre-existing array-shape gaps across the codebase — not part of this
+        # migration's scope; each would need real array<string, mixed>-style
+        # annotations added per call site.
+        -
+            identifier: missingType.iterableValue
+
+        # render_status_section() renders a WPGraphQL/Elementor status table
+        # but nothing currently calls it — needs a human decision (wire it
+        # into the settings page, or remove it), not a silent deletion here.
+        -
+            message: '#Method NextJSGraphQLHooks\\AdminPanel::render_status_section\(\) is unused#'
+            path: includes/AdminPanel.php
