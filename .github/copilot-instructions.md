@@ -8,19 +8,24 @@ WordPress plugin that exposes Elementor page content and global styles as WPGrap
 |---------------------|------------------------------|
 | Namespace           | `NextJSGraphQLHooks`         |
 | Text Domain         | `nextjs-graphql-hooks`       |
-| Version             | 1.2.0                        |
-| PHP                 | 8.0+                         |
+| Version             | 1.3.0                        |
+| PHP                 | 8.2+                         |
 | WordPress           | 6.5+                         |
 | Required dependency | WPGraphQL                    |
 | Optional dependency | Elementor                    |
 
 ## Architecture
 
-This plugin does **NOT** use LoadableInterface — it uses a **singleton pattern** (`get_instance()`) in all classes.
+This plugin uses `silverassist/wp-plugin-kernel`'s `AbstractPlugin`/`LoadableInterface` bootstrap
+pattern (shared across the SilverAssist WordPress plugin portfolio). `Plugin` extends
+`AbstractPlugin`; singleton access (`instance()`), priority-ordered component loading, and
+per-component error isolation are inherited, not re-implemented. Bootstraps on the `init` action
+(not `plugins_loaded`), since `GraphQL_Hooks::should_load()` depends on `class_exists("WPGraphQL")`,
+which isn't reliable until every plugin's `plugins_loaded` callback has already run.
 
 | Class                                        | File                          | Role                                              |
 |----------------------------------------------|-------------------------------|----------------------------------------------------|
-| `NextJSGraphQLHooks\NextJS_GraphQL_Hooks`    | `nextjs-graphql-hooks.php`    | Main plugin, dependency checks, initialization     |
+| `NextJSGraphQLHooks\Plugin`                  | `includes/Plugin.php`         | Root bootstrap: `get_components()`, updater init   |
 | `NextJSGraphQLHooks\GraphQL_Hooks`           | `includes/GraphQL_Hooks.php`  | GraphQL type/field registration, Elementor bridge   |
 | `NextJSGraphQLHooks\AdminPanel`              | `includes/AdminPanel.php`     | Admin UI, Settings Hub integration, AJAX handlers   |
 | `NextJSGraphQLHooks\Updater`                 | `includes/Updater.php`        | Auto-updates from GitHub releases                   |
@@ -55,7 +60,8 @@ Three filters allow themes/plugins to extend the GraphQL schema:
 These override or extend the global standards:
 
 - **Double quotes** for all strings (not single quotes).
-- **Singleton pattern** — no LoadableInterface, use `ClassName::get_instance()`.
+- **`LoadableInterface` components** — `ClassName::instance()` (`get_instance()` kept as a
+  deprecated forwarding alias); implement `init()`, `get_priority()`, `should_load()`.
 - **Backslash-prefix** all global WP/PHP functions in namespaced code (`\add_action`, `\register_graphql_object_type`).
 - **Elementor methods** must always guard with `\class_exists()` + try/catch.
 
@@ -77,3 +83,4 @@ These override or extend the global standards:
 | Update version     | `./scripts/update-version-simple.sh <ver>`    |
 | Build release ZIP  | `./scripts/create-release-zip.sh`             |
 | Run linter         | `composer phpcs`                              |
+| Run tests          | `vendor/bin/phpunit`                          |

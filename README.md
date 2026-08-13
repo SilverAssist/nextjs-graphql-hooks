@@ -4,14 +4,14 @@ A WordPress plugin that creates default GraphQL queries for NextJS sites with ex
 
 ## Description
 
-NextJS GraphQL Hooks provides essential GraphQL queries and types that are commonly needed when building NextJS sites with WordPress as a headless CMS. The plugin follows modern PHP 8.0+ standards and uses the singleton pattern for efficient resource management.
+NextJS GraphQL Hooks provides essential GraphQL queries and types that are commonly needed when building NextJS sites with WordPress as a headless CMS. The plugin follows modern PHP 8.2+ standards and uses the singleton pattern for efficient resource management.
 
 ## Features
 
 - **Default Page Fields**: Automatically adds `elementorContent` and `elementorCSSFile` fields to Page queries (requires Elementor)
 - **Elementor Integration**: Provides `elementorLibraryKit` query for global Elementor styles (requires Elementor)
 - **Extensible Architecture**: Use filters to register custom GraphQL types and fields
-- **Modern PHP 8.0+**: Built with modern PHP features including typed properties, match expressions, and namespaces
+- **Modern PHP 8.2+**: Built with modern PHP features including typed properties, match expressions, and namespaces
 - **Singleton Pattern**: Efficient resource management with singleton instances
 - **Error Handling**: Comprehensive error logging and graceful fallbacks
 - **Auto-Update System**: Automatic updates from GitHub releases
@@ -22,7 +22,7 @@ NextJS GraphQL Hooks provides essential GraphQL queries and types that are commo
 ## Requirements
 
 - WordPress 6.5+
-- PHP 8.0+
+- PHP 8.2+
 - WPGraphQL plugin (automatically managed as dependency)
 - Elementor plugin (required for GraphQL queries)
 
@@ -49,14 +49,14 @@ NextJS GraphQL Hooks provides essential GraphQL queries and types that are commo
 
 ### PHP Version Requirements
 
-#### PHP 8.0+ (Required)
-- **Modern Language Features**: Plugin uses PHP 8.0+ syntax and features
+#### PHP 8.2+ (Required)
+- **Modern Language Features**: Plugin uses PHP 8.2+ syntax and features
 - **Type Declarations**: Full type safety with union types and typed properties
 - **Performance**: Better performance with JIT compilation
 - **Security**: Latest security features and improvements
 
 #### PHP 7.4 and Below (Not Supported)
-- **Syntax Errors**: Plugin will not load due to PHP 8.0+ syntax
+- **Syntax Errors**: Plugin will not load due to PHP 8.2+ syntax
 - **Missing Features**: Required language features not available
 - **End of Life**: These PHP versions are no longer supported
 
@@ -101,7 +101,7 @@ NextJS GraphQL Hooks provides essential GraphQL queries and types that are commo
 - **Note**: Plugin functionality depends entirely on Elementor being active
 
 #### Plugin Not Loading
-- **Check PHP Version**: Must be 8.0 or higher
+- **Check PHP Version**: Must be 8.2 or higher
 - **Check WordPress Version**: Must be 6.0 or higher (6.5+ recommended)
 - **Check Dependencies**: Ensure both WPGraphQL and Elementor are installed and active
 
@@ -114,9 +114,9 @@ NextJS GraphQL Hooks provides essential GraphQL queries and types that are commo
 ## Download
 
 The plugin is available as a ready-to-install ZIP file from GitHub releases:
-- **Latest Version**: 1.1.0
+- **Latest Version**: 1.3.0
 - **Package Size**: ~13KB (compressed)
-- **Compatibility**: WordPress 6.5+ with PHP 8.0+
+- **Compatibility**: WordPress 6.5+ with PHP 8.2+
 - **Auto-Updates**: Included from GitHub releases
 - **Dependencies**: WPGraphQL and Elementor (automatically managed on WordPress 6.5+)
 
@@ -754,12 +754,12 @@ The plugin includes comprehensive error handling:
 - **Double quotes** for all strings: `"string"` not `'string'`
 - **Short array syntax**: `[]` not `array()`
 - **Namespaces**: `NextJSGraphQLHooks`
-- **Singleton pattern**: `Class_Name::get_instance()`
+- **Singleton pattern**: `Class_Name::instance()` (components implement `SilverAssist\PluginKernel\Interfaces\LoadableInterface`; `get_instance()` is kept as a deprecated forwarding alias)
 - **WordPress hooks**: `\add_action("init", [$this, "method"])`
 - **PHP 8+ Features**: Match expressions, array spread, typed properties
 - **Global function calls**: Use `\` prefix for WordPress functions in namespaced context
 
-### Modern PHP 8.0+ Features
+### Modern PHP 8.2+ Features
 
 - **Namespace Organization**: Clean namespace structure
 - **Match Expression**: For conditional logic

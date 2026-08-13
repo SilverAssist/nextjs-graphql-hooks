@@ -90,9 +90,10 @@ class Plugin extends AbstractPlugin
      *
      * WPGraphQL isn't required for the plugin to load — GraphQL_Hooks
      * itself already gates on class_exists("WPGraphQL") via should_load()
-     * — but the original behavior only ran the updater (and skipped it
-     * entirely, showing an admin notice instead) when WPGraphQL was
-     * missing, so that distinction is preserved here.
+     * — but the original behavior only ran the updater (and dispatched
+     * nextjs_graphql_hooks_loaded) when WPGraphQL was active, showing an
+     * admin notice instead when it was missing, so that distinction is
+     * preserved here.
      *
      * @since 1.3.0
      * @return void
