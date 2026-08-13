@@ -82,8 +82,12 @@ jobs:
 
             - name: Run security check
               run: |
-                  # Check for common security issues (excluding vendor, .github, and other non-source directories)
-                  grep -r "eval(" . --exclude-dir=vendor --exclude-dir=.github --exclude-dir=node_modules --exclude-dir=.git && exit 1 || echo "✅ No eval() found"
+                  # Check for common security issues (excluding vendor, .github, tests, and other non-source directories)
+                  # tests/ is excluded from the eval() check: PluginTest.php legitimately uses eval() to
+                  # stub an external plugin class (WPGraphQL) for an isolated-process test — see
+                  # tests/Unit/PluginTest.php::test_init_updater_constructs_updater_when_wpgraphql_active().
+                  # Same exclusion convention already used by acf-clone-fields's ci.yml for the same reason.
+                  grep -r "eval(" . --exclude-dir=vendor --exclude-dir=.github --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=tests && exit 1 || echo "✅ No eval() found"
                   grep -r "\$_GET\[" . --exclude-dir=vendor --exclude-dir=.github --exclude-dir=node_modules --exclude-dir=.git && echo "⚠️  Direct \$_GET usage found" || echo "✅ No direct \$_GET usage"
                   grep -r "\$_POST\[" . --exclude-dir=vendor --exclude-dir=.github --exclude-dir=node_modules --exclude-dir=.git && echo "⚠️  Direct \$_POST usage found" || echo "✅ No direct \$_POST usage"
                   grep -r "file_get_contents.*http" . --exclude-dir=vendor --exclude-dir=.github --exclude-dir=node_modules --exclude-dir=.git && exit 1 || echo "✅ No remote file_get_contents found"
