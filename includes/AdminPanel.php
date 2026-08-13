@@ -7,12 +7,13 @@
  * @package NextJSGraphQLHooks
  * @since 1.0.4
  * @author Silver Assist
- * @version 1.2.1
+ * @version 1.3.0
  * @license Polyform Noncommercial License 1.0.0
  */
 
 namespace NextJSGraphQLHooks;
 
+use SilverAssist\PluginKernel\Interfaces\LoadableInterface;
 use SilverAssist\SettingsHub\SettingsHub;
 
 // Prevent direct access
@@ -23,7 +24,7 @@ defined("ABSPATH") or exit;
  *
  * Manages admin interface and Settings Hub integration
  */
-class AdminPanel
+class AdminPanel implements LoadableInterface
 {
 	private static ?AdminPanel $instance = null;
 
@@ -33,7 +34,7 @@ class AdminPanel
 	 * @since 1.0.4
 	 * @return AdminPanel
 	 */
-	public static function get_instance(): AdminPanel
+	public static function instance(): AdminPanel
 	{
 		if (!isset(self::$instance)) {
 			self::$instance = new self();
@@ -43,26 +44,62 @@ class AdminPanel
 	}
 
 	/**
+	 * Deprecated alias for instance()
+	 *
+	 * @deprecated 1.3.0 Use instance() instead.
+	 * @since 1.0.4
+	 * @return AdminPanel
+	 */
+	public static function get_instance(): AdminPanel
+	{
+		return self::instance();
+	}
+
+	/**
 	 * AdminPanel constructor
 	 *
 	 * @since 1.0.4
 	 */
 	private function __construct()
 	{
-		$this->init_hooks();
 	}
 
 	/**
-	 * Initialize WordPress hooks
+	 * Initialize the component
 	 *
-	 * @since 1.0.4
+	 * @since 1.3.0
 	 * @return void
 	 */
-	private function init_hooks(): void
+	public function init(): void
 	{
 		// CRITICAL: Use priority 4 to register before Settings Hub (priority 5)
 		\add_action("admin_menu", [$this, "register_with_hub"], 4);
 		\add_action("admin_enqueue_scripts", [$this, "enqueue_admin_scripts"]);
+	}
+
+	/**
+	 * Get the component loading priority
+	 *
+	 * @since 1.3.0
+	 * @return int
+	 */
+	public function get_priority(): int
+	{
+		return 30;
+	}
+
+	/**
+	 * Determine if the component should be loaded
+	 *
+	 * Matches the original gating done externally by the plugin's
+	 * init_admin_panel() method.
+	 *
+	 * @since 1.3.0
+	 * @return bool
+	 */
+	public function should_load(): bool
+	{
+		return \is_admin();
 	}
 
 	/**
@@ -131,7 +168,7 @@ class AdminPanel
 	{
 		$actions = [];
 
-		$main = NextJS_GraphQL_Hooks::get_instance();
+		$main = Plugin::instance();
 		if ($main->get_updater()) {
 			$actions[] = [
 				"id" => "check_updates",
@@ -443,7 +480,7 @@ class AdminPanel
 	 */
 	public function render_update_check_script(string $plugin_slug = ""): void
 	{
-		$main = NextJS_GraphQL_Hooks::get_instance();
+		$main = Plugin::instance();
 		$updater = $main->get_updater();
 
 		if (!$updater) {
