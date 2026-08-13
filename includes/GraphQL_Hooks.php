@@ -5,7 +5,7 @@
  * @package NextJSGraphQLHooks
  * @since 1.0.0
  * @author Silver Assist
- * @version 1.2.1
+ * @version 1.3.0
  * @license Polyform Noncommercial License 1.0.0
  */
 
@@ -13,6 +13,7 @@ namespace NextJSGraphQLHooks;
 
 use Elementor\Core\Files\CSS\Post as Post_CSS;
 use Elementor\Plugin as Elementor;
+use SilverAssist\PluginKernel\Interfaces\LoadableInterface;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Registry\TypeRegistry;
 
@@ -24,7 +25,7 @@ defined("ABSPATH") or exit;
  *
  * Handles the registration and callbacks for GraphQL types and fields.
  */
-class GraphQL_Hooks
+class GraphQL_Hooks implements LoadableInterface
 {
     private static ?GraphQL_Hooks $instance = null;
 
@@ -33,7 +34,7 @@ class GraphQL_Hooks
      *
      * @return GraphQL_Hooks
      */
-    public static function get_instance(): GraphQL_Hooks
+    public static function instance(): GraphQL_Hooks
     {
         if (!isset(self::$instance)) {
             self::$instance = new self();
@@ -43,14 +44,55 @@ class GraphQL_Hooks
     }
 
     /**
-     * GraphQL_Hooks constructor.
+     * Deprecated alias for instance()
      *
-     * Register the GraphQL types and fields.
+     * @deprecated 1.3.0 Use instance() instead.
+     * @return GraphQL_Hooks
+     */
+    public static function get_instance(): GraphQL_Hooks
+    {
+        return self::instance();
+    }
+
+    /**
+     * Private constructor to prevent direct instantiation
      */
     private function __construct()
     {
+    }
+
+    /**
+     * Initialize the component
+     *
+     * @return void
+     */
+    public function init(): void
+    {
         // Register the GraphQL types
         \add_action("graphql_register_types", [$this, "register_graphql_types"]);
+    }
+
+    /**
+     * Get the component loading priority
+     *
+     * @return int
+     */
+    public function get_priority(): int
+    {
+        return 20;
+    }
+
+    /**
+     * Determine if the component should be loaded
+     *
+     * Only relevant while WPGraphQL is active — matches the original
+     * gating done externally by the plugin's init_graphql_hooks() method.
+     *
+     * @return bool
+     */
+    public function should_load(): bool
+    {
+        return \class_exists("WPGraphQL");
     }
 
     /**

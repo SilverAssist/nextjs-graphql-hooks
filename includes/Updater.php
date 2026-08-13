@@ -8,7 +8,7 @@
  * @package NextJSGraphQLHooks
  * @since 1.0.0
  * @author Silver Assist
- * @version 1.2.1
+ * @version 1.3.0
  * @license Polyform Noncommercial License 1.0.0
  */
 
@@ -44,7 +44,7 @@ class Updater extends GitHubUpdater
         "plugin_author" => "Silver Assist",
         "plugin_homepage" => "https://github.com/SilverAssist/nextjs-graphql-hooks",
         "requires_wordpress" => "6.0",
-        "requires_php" => "8.0",
+        "requires_php" => "8.2",
         "asset_pattern" => "nextjs-graphql-hooks-v{version}.zip",
         "cache_duration" => 12 * 3600, // 12 hours
         "ajax_action" => "nextjs_graphql_hooks_check_version",

@@ -5,6 +5,24 @@ All notable changes to the NextJS GraphQL Hooks Plugin will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-08-12
+
+### Changed
+- **Bootstrap**: Decompose the monolithic `NextJS_GraphQL_Hooks` singleton (previously living directly in
+  the main plugin file) into a `Plugin` class extending `silverassist/wp-plugin-kernel`'s `AbstractPlugin`,
+  matching the bootstrap pattern already adopted across the SilverAssist WordPress plugin portfolio
+  - `GraphQL_Hooks` and `AdminPanel` now implement `LoadableInterface` (`instance()`, `init()`,
+    `get_priority()`, `should_load()`) instead of being manually instantiated from hardcoded `init` hooks;
+    `get_instance()` on both is kept as a deprecated alias for `instance()`
+  - The plugin now bootstraps on the `init` action instead of `plugins_loaded`, since
+    `GraphQL_Hooks::should_load()` depends on `class_exists("WPGraphQL")`, which isn't reliable until
+    every plugin's `plugins_loaded` callback has already run
+- **Requirements**: Raise minimum PHP from 8.0 to 8.2, required by `silverassist/wp-plugin-kernel`; brings
+  this plugin in line with the 8.2+ floor already used across the rest of the portfolio
+
+### Deprecated
+- `GraphQL_Hooks::get_instance()` and `AdminPanel::get_instance()` — use `instance()` instead
+
 ## [1.2.1] - 2026-03-09
 
 ### Changed

@@ -23,11 +23,4 @@
     <exclude-pattern>*.js</exclude-pattern>
     <exclude-pattern>*.css</exclude-pattern>
     <exclude-pattern>*.md</exclude-pattern>
-
-    <!-- Overrides SilverAssistWP's default testVersion (8.2-): this plugin
-         declares and is distributed for PHP 8.0+ (see composer.json and
-         the plugin header). Note CI's quality-checks.yml matrix currently
-         only actually tests PHP 8.3, so this floor isn't continuously
-         verified in practice; worth a follow-up, out of scope here. -->
-    <config name="testVersion" value="8.0-"/>
 </ruleset>
