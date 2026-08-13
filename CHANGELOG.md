@@ -23,6 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 - `GraphQL_Hooks::get_instance()` and `AdminPanel::get_instance()` — use `instance()` instead
 
+### Added
+- **Tests**: Add a PHPUnit test suite (none existed before), following the `WP_UnitTestCase`-based
+  convention used across the rest of the SilverAssist WordPress plugin portfolio — real WordPress test
+  environment via `scripts/install-wp-tests.sh`, not mocks. Covers `Plugin`, `GraphQL_Hooks`, and
+  `AdminPanel`: singleton identity, `get_priority()`/`should_load()` gating, hook registration, and the
+  deprecated `get_instance()` forwarding. Wired into CI (`quality-checks.yml`) with a MySQL service and
+  WordPress Test Suite installation step
+
 ## [1.2.1] - 2026-03-09
 
 ### Changed
