@@ -49,7 +49,10 @@
   "scripts": {
     "test": "phpunit",
     "phpcs": "phpcs -d memory_limit=512M",
-    "phpcbf": "phpcbf -d memory_limit=512M"
+    "phpcbf": "phpcbf -d memory_limit=512M",
+    "setup-hooks": "git config core.hooksPath .githooks",
+    "post-install-cmd": "@setup-hooks",
+    "post-update-cmd": "@setup-hooks"
   },
   "support": {
     "issues": "https://github.com/SilverAssist/nextjs-graphql-hooks/issues",
