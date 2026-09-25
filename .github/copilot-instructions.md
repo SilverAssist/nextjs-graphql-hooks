@@ -8,7 +8,7 @@ WordPress plugin that exposes Elementor page content and global styles as WPGrap
 |---------------------|------------------------------|
 | Namespace           | `NextJSGraphQLHooks`         |
 | Text Domain         | `nextjs-graphql-hooks`       |
-| Version             | 1.3.0                        |
+| Version             | 1.3.1                        |
 | PHP                 | 8.2+                         |
 | WordPress           | 6.5+                         |
 | Required dependency | WPGraphQL                    |

@@ -114,7 +114,7 @@ NextJS GraphQL Hooks provides essential GraphQL queries and types that are commo
 ## Download
 
 The plugin is available as a ready-to-install ZIP file from GitHub releases:
-- **Latest Version**: 1.3.0
+- **Latest Version**: 1.3.1
 - **Package Size**: ~13KB (compressed)
 - **Compatibility**: WordPress 6.5+ with PHP 8.2+
 - **Auto-Updates**: Included from GitHub releases
@@ -746,6 +746,17 @@ The plugin includes comprehensive error handling:
 - Graceful fallbacks when Elementor is not available
 - Error logging for debugging purposes
 - Empty string returns instead of exceptions for missing content
+
+## Composer authentication (private packages)
+
+The SilverAssist packages this plugin uses (`wp-github-updater`, `wp-plugin-kernel`, `wp-settings-hub`, `coding-standards` and `wp-coding-standards`) are installed from their GitHub repositories through Composer `vcs` repositories declared in `composer.json`, not from Packagist.org. Those repositories can require authentication, so configure a token before running `composer install`:
+
+- **Locally:** `composer config --global github-oauth.github.com <token>`
+- **CI:** store `{"github-oauth":{"github.com":"<token>"}}` as the repository secret `COMPOSER_AUTH`. The workflows already pass it to `composer install`.
+
+Never commit a token or an `auth.json`.
+
+**Updating from a private repository:** when the plugin's repository is private, the site needs a read-only token in the `SILVER_GITHUB_TOKEN` constant or environment variable so the updater can read the releases. A public repository needs no token.
 
 ## Development
 
